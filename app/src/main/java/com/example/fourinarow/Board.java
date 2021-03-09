@@ -37,7 +37,7 @@ public class Board {
     @Override
     public String toString(){
         String aux = "";
-        for(int i = 0; i < height; i++){
+        for(int i = height-1; i >= 0; i--){
             for(int j = 0; j < width; j++){
                 aux += " | "+grid[i][j].toString();
             }

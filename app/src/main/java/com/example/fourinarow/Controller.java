@@ -37,14 +37,14 @@ public class Controller extends Thread {
                 }
             }
 
-            //Try to playa man in every column
+            //Try to play a man in every column
+            int col = 0;
             while (!blackPlays) {
-                int col = 0;
                 try {
                     board.playMan(col, playingMan);
                     newTurn();
                 } catch (ColumnFullException e) {
-                    if (col <= 6) {
+                    if (col < 6) {
                         col += 1;
                     } else {
                         gameover = true;
@@ -53,6 +53,7 @@ public class Controller extends Thread {
                 }
             }
         }
+        main.updateTextViewCol("En of game");
     }
 
     private void newTurn() {

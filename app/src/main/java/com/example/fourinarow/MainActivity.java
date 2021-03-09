@@ -8,7 +8,11 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     /*
-        - Concurrency in order to be albe to interact in real time with the game
+    TO DO
+        - 
+    DONE
+        - 3-03-21 Concurrency in order to be albe to interact in real time with the game
+        - 9-03-21 Error on setText (why?)
     */
     int column = 0;
     Controller control;
@@ -22,9 +26,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
+        tv.setText("hola");
         tvcol = (TextView) findViewById(R.id.textView2);
+        tvcol.setText("0");
 
-        Controller control = new Controller(this);
+        control = new Controller(this);
 
         control.start();
     }
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void updateTextViewCol() {
-        tvcol.setText(column);
+        tvcol.setText(Integer.toString(column));
     }
 
     public void updateTextViewCol(String str) {
