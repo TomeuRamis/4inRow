@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FourInARow</string>
+    <string name="text_view">Nothing</string>
+    <string name="ButtonLeft">←</string>
+    <string name="ButtonRight">→</string>
+    <string name="ButtonPlaceMan">Place</string>
+    <string name="TextViewColumn">NULL</string>
+</resources>
