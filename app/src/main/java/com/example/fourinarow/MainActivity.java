@@ -9,7 +9,8 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     /*
     TO DO
-        - 
+        - 9-03-21 Detect win states
+            + Horizontal, vertical and bottom-top done. Top-bottom detection missing.
     DONE
         - 3-03-21 Concurrency in order to be albe to interact in real time with the game
         - 9-03-21 Error on setText (why?)

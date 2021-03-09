@@ -7,8 +7,9 @@ public class Controller extends Thread {
     Board board;
     MainActivity main;
 
-    int column = 0;
     int turn = 0;
+    Boolean gameover = false;
+
     Boolean blackPlays = false;
     Man playingMan = null;
 
@@ -25,7 +26,7 @@ public class Controller extends Thread {
     public void startGame() {
         newTurn();
 
-        Boolean gameover = false;
+
         while (!gameover) {
 
             //Wait for the user's turn to end
@@ -50,6 +51,8 @@ public class Controller extends Thread {
                         gameover = true;
                         break;
                     }
+                } catch (GameOverException e) {
+                    gameover = true;
                 }
             }
         }
@@ -57,6 +60,7 @@ public class Controller extends Thread {
     }
 
     private void newTurn() {
+
         turn += 1;
         blackPlays = !blackPlays;
 
@@ -78,9 +82,10 @@ public class Controller extends Thread {
                 newTurn();
             } catch (ColumnFullException e) {
                 main.updateTextViewCol("this column is full");
+            } catch (GameOverException e) {
+                gameover = true;
             }
         }
     }
-
 
 }
