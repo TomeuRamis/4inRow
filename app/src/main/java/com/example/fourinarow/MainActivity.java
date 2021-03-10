@@ -9,11 +9,13 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     /*
     TO DO
-        
+        - Some sort of DEV mode
     DONE
-        - 3-03-21 Concurrency in order to be albe to interact in real time with the game
-        - 9-03-21 Error on setText (why?)
+        - 3-03-21 Concurrency in order to be able to interact in real time with the game
+        - 9-03-21 Error on setText (was writing an INT instead of String)
         - 9-03-21 Detect win states
+        - 10-03-21 Better turns (IA vs player)
+        - 10-03-21 Random assignment of teams
     */
     int column = 0;
     Controller control;

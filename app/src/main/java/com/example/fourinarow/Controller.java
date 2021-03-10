@@ -2,6 +2,8 @@ package com.example.fourinarow;
 
 import android.widget.TextView;
 
+import java.util.Random;
+
 public class Controller extends Thread {
 
     Board board;
@@ -10,14 +12,17 @@ public class Controller extends Thread {
     int turn = 0;
     Boolean gameover = false;
 
-    Boolean blackPlays = false;
-    Man playingMan = null;
+    Boolean blackPlays = true;
+    Man playingMan = Man.BLACK;
+    Man player = null;
+    Man ia = null;
 
     public Controller(MainActivity main, int width, int height) {
         board = new Board(width, height);
         this.main = main;
     }
 
+    @Override
     public void run() {
         System.out.println("Game start!");
         startGame();
@@ -25,42 +30,70 @@ public class Controller extends Thread {
     }
 
     public void startGame() {
-        newTurn();
+        main.updateTextViewBoard(board.toString());
+        assignTeams();
+        gameLoop();
 
-        while (!gameover) {
+        main.updateTextViewCol("En of game");
+        main.updateTextViewBoard(board.toString());
+    }
 
-            //Wait for the user's turn to end
-            while (blackPlays) {
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+    public void assignTeams(){
+        /* //Not for now
+        Random ran = new Random(10);
+        if(ran.nextInt(10)%2 == 0){
+            player = Man.BLACK;
+            ia = Man.WHITE;
+        } else{
+            player = Man.WHITE;
+            ia = Man.BLACK;
+        }
+        */
+         player = Man.BLACK;
+         ia = Man.WHITE;
+    }
 
-            //Try to play a man in every column
-            int col = 0;
-            while (!blackPlays && !gameover) {
-                try {
-                    playMan(col);
-                } catch (ColumnFullException e) {
-                    if (col < 6) {
-                        col += 1;
-                    } else {
-                        gameover = true;
-                        break;
-                    }
-                }
+    public void gameLoop(){
+        while(!gameover){
+            if(playingMan == player){
+                turnPlayer();
+            }else{
+                turnIA();
             }
         }
         main.updateTextViewCol("En of game");
-        main.updateTextViewBoard(board.toString());
+    }
+
+    public void turnPlayer(){
+        while(playingMan == player){
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void turnIA(){
+        int col = 0;
+        while(playingMan == ia){
+            try {
+                playMan(col);
+            } catch (ColumnFullException e) {
+                if (col < 6) {
+                    col += 1;
+                } else { //All columns are full
+                    gameover = true;
+                    break;
+                }
+            }
+        }
     }
 
     /* Increase counter of turns.
     Invert blackplays, indicating that its the other player's turn.
     And set the values of PlayingMan accordingly.
-    Update both text views */
+    Update text view */
     private void newTurn() {
 
         turn += 1;
@@ -69,18 +102,15 @@ public class Controller extends Thread {
         Man aux;
         if (blackPlays) {
             playingMan = Man.BLACK;
-            main.updateTextViewCol("Start of turn");
         } else {
             playingMan = Man.WHITE;
-            main.updateTextViewCol("End of turn");
         }
         main.updateTextViewBoard(board.toString());
     }
 
     /* Plays a man on a column.
     Throws ColumnFullException, so it has to be handled individually.
-    Ends the game when GameOverException.
-    Starts a new turn after placing the man (even if a game over has been accomplished) */
+    Ends the game when GameOverException.*/
     public void playMan(int col) throws ColumnFullException {
         try {
             board.playMan(col, playingMan);
