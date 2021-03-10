@@ -9,11 +9,11 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     /*
     TO DO
-        - 9-03-21 Detect win states
-            + Horizontal, vertical and bottom-top done. Top-bottom detection missing.
+        
     DONE
         - 3-03-21 Concurrency in order to be albe to interact in real time with the game
         - 9-03-21 Error on setText (why?)
+        - 9-03-21 Detect win states
     */
     int column = 0;
     Controller control;
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         tvcol = (TextView) findViewById(R.id.textView2);
         tvcol.setText("0");
 
-        control = new Controller(this);
+        control = new Controller(this, 7, 6);
 
         control.start();
     }
@@ -46,19 +46,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveRight(View view) {
-            if (column < 6) {
-                column += 1;
-            }
+        if (column < control.getWidth()) {
+            column += 1;
+        }
         updateTextViewCol();
         view.invalidate();  // for refreshment
         System.out.println("RIGHT");
     }
 
     public void placeMan(View view) {
-        control.playMan(column);
-        System.out.println("MAN PLAYED");
+        try {
+            control.playMan(column);
+            System.out.println("MAN PLAYED");
+        } catch (ColumnFullException e) {
+            updateTextViewCol("This column is full");
+        }
     }
 
+    public void restart(View view){
+        this.column = 0;
+        control = new Controller(this, 7, 6);
+        control.start();
+    }
 
     public void updateTextViewCol() {
         tvcol.setText(Integer.toString(column));

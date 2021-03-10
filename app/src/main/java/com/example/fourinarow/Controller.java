@@ -13,19 +13,19 @@ public class Controller extends Thread {
     Boolean blackPlays = false;
     Man playingMan = null;
 
-    public Controller(MainActivity main) {
-        board = new Board(7, 6);
+    public Controller(MainActivity main, int width, int height) {
+        board = new Board(width, height);
         this.main = main;
     }
 
     public void run() {
         System.out.println("Game start!");
         startGame();
+        System.out.println("Game end");
     }
 
     public void startGame() {
         newTurn();
-
 
         while (!gameover) {
 
@@ -40,10 +40,9 @@ public class Controller extends Thread {
 
             //Try to play a man in every column
             int col = 0;
-            while (!blackPlays) {
+            while (!blackPlays && !gameover) {
                 try {
-                    board.playMan(col, playingMan);
-                    newTurn();
+                    playMan(col);
                 } catch (ColumnFullException e) {
                     if (col < 6) {
                         col += 1;
@@ -51,14 +50,17 @@ public class Controller extends Thread {
                         gameover = true;
                         break;
                     }
-                } catch (GameOverException e) {
-                    gameover = true;
                 }
             }
         }
         main.updateTextViewCol("En of game");
+        main.updateTextViewBoard(board.toString());
     }
 
+    /* Increase counter of turns.
+    Invert blackplays, indicating that its the other player's turn.
+    And set the values of PlayingMan accordingly.
+    Update both text views */
     private void newTurn() {
 
         turn += 1;
@@ -75,17 +77,21 @@ public class Controller extends Thread {
         main.updateTextViewBoard(board.toString());
     }
 
-    public void playMan(int col) {
-        if (blackPlays) {
-            try {
-                board.playMan(col, playingMan);
-                newTurn();
-            } catch (ColumnFullException e) {
-                main.updateTextViewCol("this column is full");
-            } catch (GameOverException e) {
-                gameover = true;
-            }
+    /* Plays a man on a column.
+    Throws ColumnFullException, so it has to be handled individually.
+    Ends the game when GameOverException.
+    Starts a new turn after placing the man (even if a game over has been accomplished) */
+    public void playMan(int col) throws ColumnFullException {
+        try {
+            board.playMan(col, playingMan);
+            newTurn();
+        } catch (GameOverException e) {
+            gameover = true;
+            newTurn();
         }
     }
 
+    public int getWidth(){
+        return this.board.width;
+    }
 }

@@ -5,4 +5,5 @@
     <string name="ButtonRight">→</string>
     <string name="ButtonPlaceMan">Place</string>
     <string name="TextViewColumn">NULL</string>
+    <string name="ButtonRestart">RESTART</string>
 </resources>
