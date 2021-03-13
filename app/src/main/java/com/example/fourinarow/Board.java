@@ -95,6 +95,10 @@ public class Board {
         }
     }
 
+    public Man getSquare(int x, int y){
+        return grid[x][y].getMan();
+    }
+
     @Override
     public String toString() {
         String aux = "";
