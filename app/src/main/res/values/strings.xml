@@ -6,4 +6,5 @@
     <string name="ButtonPlaceMan">Place</string>
     <string name="TextViewColumn">NULL</string>
     <string name="ButtonRestart">RESTART</string>
+    <string name="ButtonDevMode">Toggle Dev Mode</string>
 </resources>

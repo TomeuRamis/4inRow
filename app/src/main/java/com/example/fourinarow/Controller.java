@@ -9,6 +9,7 @@ public class Controller extends Thread {
     Board board;
     MainActivity main;
 
+    Boolean devmode = false;
     int turn = 0;
     Boolean gameover = false;
 
@@ -38,7 +39,13 @@ public class Controller extends Thread {
         main.updateTextViewBoard(board.toString());
     }
 
-    public void assignTeams(){
+    public void toggleDevMode(){
+        if(!gameover){
+            devmode = !devmode;
+        }
+    }
+
+    public void assignTeams() {
         /* //Not for now
         Random ran = new Random(10);
         if(ran.nextInt(10)%2 == 0){
@@ -49,23 +56,27 @@ public class Controller extends Thread {
             ia = Man.BLACK;
         }
         */
-         player = Man.BLACK;
-         ia = Man.WHITE;
+        player = Man.BLACK;
+        ia = Man.WHITE;
     }
 
-    public void gameLoop(){
-        while(!gameover){
-            if(playingMan == player){
+    public void gameLoop() {
+        while (!gameover) {
+            if (devmode) {
                 turnPlayer();
-            }else{
-                turnIA();
+            } else {
+                if (playingMan == player) {
+                    turnPlayer();
+                } else {
+                    turnIA();
+                }
             }
         }
         main.updateTextViewCol("En of game");
     }
 
-    public void turnPlayer(){
-        while(playingMan == player){
+    public void turnPlayer() {
+        while (playingMan == player) {
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
@@ -74,9 +85,9 @@ public class Controller extends Thread {
         }
     }
 
-    public void turnIA(){
+    public void turnIA() {
         int col = 0;
-        while(playingMan == ia){
+        while (playingMan == ia) {
             try {
                 playMan(col);
             } catch (ColumnFullException e) {
@@ -121,7 +132,7 @@ public class Controller extends Thread {
         }
     }
 
-    public int getWidth(){
+    public int getWidth() {
         return this.board.width;
     }
 }
