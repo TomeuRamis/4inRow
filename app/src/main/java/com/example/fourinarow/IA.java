@@ -2,27 +2,64 @@ package com.example.fourinarow;
 
 public class IA {
 
+    public class Node{
+        Board board = null;
+        int score = 0;
+
+        public Node(Board b){
+            this.board = b;
+        }
+
+    }
+
     Man team;
 
     public IA(Man m) {
         this.team = m;
     }
 
-    public int evaluateBoard(Board board) {
+    public Node minmax(Node node, int depth, boolean max){
+        if( depth == 0){
+            return evaluateBoard(node);
+        }
+
+        if(max){
+            int maxeval = -1000;
+            Node[] childs = generateChilds(node);
+            for(int i = 0; i < childs.length; i++){
+                int eva = minmax(childs[i], depth-1, false);
+            }
+        }
+    }
+
+    public Node evaluateBoard(Node node) {
         int value = 0;
-        switch (endState(board)) {
+        switch (endState(node.board)) {
             case BLACK:
+                if(Man.BLACK == team){ //IA wins
+                    value = 100;
+                }else{ //IA looses
+                    value = -100;
+                }
                 break;
             case WHITE:
+                if(Man.WHITE == team){ //IA wins
+                    value = 100;
+                }else{ //IA looses
+                    value = -100;
+                }
                 break;
             case EMPTY:
-                if(tie(board)){
-
+                if(tie(node.board)){ //TIE
+                    value = 0;
+                }else{ //The game has not concluded
+                    value = -1;
                 }
                 break;
 
         }
-        return value;
+        node.score = value;
+        return node;
     }
 
     /* Identify if the game is over. If it is, return the winning team, otherwise return EMPTY */
