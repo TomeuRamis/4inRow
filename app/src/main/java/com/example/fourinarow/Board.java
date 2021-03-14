@@ -8,6 +8,8 @@ public class Board {
     int width;
     int height;
 
+    int mans = 0; //number of total mans played
+
     public Board(int width, int height) {
         this.height = height;
         this.width = width;
@@ -20,11 +22,21 @@ public class Board {
         }
     }
 
+    public Board (Board b, int col, Man m) throws ColumnFullException, GameOverException {
+        this.height = b.height;
+        this.width = b.width;
+        this.grid = b.grid;
+        this.mans = b.mans;
+
+        playMan(col, m);
+    }
+
     public void playMan(int col, Man m) throws ColumnFullException, GameOverException {
         int i = 0;
         while (i < height) {
             if (grid[i][col].isEmpty()) {
                 grid[i][col].playMan(m);
+                mans++;
                 break;
             }
             i++;

@@ -16,13 +16,16 @@ public class IA {
             case WHITE:
                 break;
             case EMPTY:
+                if(tie(board)){
+
+                }
                 break;
 
         }
         return value;
     }
 
-    /* Identify if the game is over. If it is return the winning team, otherwise return EMPTY */
+    /* Identify if the game is over. If it is, return the winning team, otherwise return EMPTY */
     public Man endState(Board board) {
         Man m = Man.EMPTY;
 
@@ -92,4 +95,9 @@ public class IA {
         }
         return Man.EMPTY; //No win found
     }
+
+    public boolean tie(Board board){
+        return board.mans == board.height*board.width;
+    }
+
 }

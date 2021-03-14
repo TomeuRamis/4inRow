@@ -2,7 +2,7 @@ TO DO
 	- IA
 		+ Evaluation of gamesate
 			- 13-03-21 Identifying win-loose states
-			- Identifying ties
+			- 14-03-21 Identifying ties
 			- Identifying threats (3 in a row)
 			- Identifying blocks (blocking 3s and 4s in a row)
 			- Control of the Zugzwang
