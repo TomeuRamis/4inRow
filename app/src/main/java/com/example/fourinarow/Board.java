@@ -9,6 +9,7 @@ public class Board {
     int height;
 
     int mans = 0; //number of total mans played
+    boolean ended = false; //I fthe game has ended
 
     public Board(int width, int height) {
         this.height = height;
@@ -22,13 +23,17 @@ public class Board {
         }
     }
 
-    public Board (Board b, int col, Man m) throws ColumnFullException, GameOverException {
+    public Board (Board b, int col, Man m) throws ColumnFullException{
         this.height = b.height;
         this.width = b.width;
         this.grid = b.grid;
         this.mans = b.mans;
 
-        playMan(col, m);
+        try {
+            playMan(col, m);
+        }catch(GameOverException e){
+            this.ended = true;
+        }
     }
 
     public void playMan(int col, Man m) throws ColumnFullException, GameOverException {
