@@ -1,9 +1,5 @@
 package com.example.fourinarow;
 
-import android.widget.TextView;
-
-import java.util.Random;
-
 public class Controller extends Thread {
 
     Board board;
@@ -11,12 +7,14 @@ public class Controller extends Thread {
 
     Boolean devmode = false;
     int turn = 0;
-    Boolean gameover = false;
+    Boolean gameOver = false;
+
+    IA ia;
 
     Boolean blackPlays = true;
     Man playingMan = Man.BLACK;
-    Man player = null;
-    Man ia = null;
+    Man manPlayer = null;
+    Man manIA = null;
 
     public Controller(MainActivity main, int width, int height) {
         board = new Board(width, height);
@@ -33,14 +31,15 @@ public class Controller extends Thread {
     public void startGame() {
         main.updateTextViewBoard(board.toString());
         assignTeams();
+        ia = new IA(this.board, this.manIA);
         gameLoop();
 
         main.updateTextViewCol("En of game");
         main.updateTextViewBoard(board.toString());
     }
 
-    public void toggleDevMode(){
-        if(!gameover){
+    public void toggleDevMode() {
+        if (!gameOver) {
             devmode = !devmode;
         }
     }
@@ -56,19 +55,23 @@ public class Controller extends Thread {
             ia = Man.BLACK;
         }
         */
-        player = Man.BLACK;
-        ia = Man.WHITE;
+        manPlayer = Man.BLACK;
+        manIA = Man.WHITE;
     }
 
     public void gameLoop() {
-        while (!gameover) {
+        while (!gameOver) {
             if (devmode) {
                 turnPlayer();
             } else {
-                if (playingMan == player) {
+                if (playingMan == manPlayer) {
                     turnPlayer();
                 } else {
-                    turnIA();
+                    try {
+                        this.ia.play();
+                    } catch (GameOverException e) {
+                        gameOver = true;
+                    }
                 }
             }
         }
@@ -76,7 +79,7 @@ public class Controller extends Thread {
     }
 
     public void turnPlayer() {
-        while (playingMan == player) {
+        while (playingMan == manPlayer) {
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
@@ -87,14 +90,14 @@ public class Controller extends Thread {
 
     public void turnIA() {
         int col = 0;
-        while (playingMan == ia) {
+        while (playingMan == manIA) {
             try {
                 playMan(col);
             } catch (ColumnFullException e) {
                 if (col < 6) {
                     col += 1;
                 } else { //All columns are full
-                    gameover = true;
+                    gameOver = true;
                     break;
                 }
             }
@@ -127,7 +130,7 @@ public class Controller extends Thread {
             board.playMan(col, playingMan);
             newTurn();
         } catch (GameOverException e) {
-            gameover = true;
+            gameOver = true;
             newTurn();
         }
     }

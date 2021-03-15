@@ -8,13 +8,19 @@ public class IA {
 
     public class Node {
         Board board = null;
+        int column;
         int score = 0;
         boolean terminal = false;
         Man win = Man.EMPTY;
-        ArrayList<Node> child;
+        ArrayList<Node> child = new ArrayList<Node>();
 
         public Node(Board b) {
             this.board = b;
+        }
+
+        public Node(Board b, int c) {
+            this.board = b;
+            this.column = c;
         }
 
         public Node(int val) {
@@ -50,7 +56,7 @@ public class IA {
             for (int i = 0; i < board.width; i++) {
                 try {
                     Board b = new Board(this.board, i, m);
-                    Node node = new Node(b);
+                    Node node = new Node(b, i);
                     if (b.ended) { //Mark the node as a leaf node (terminal node) and save who made the winning move
                         node.terminal = true;
                         node.win = m;
@@ -66,7 +72,6 @@ public class IA {
     Board board;
     Man team;
     Node root;
-    Iterator<Node> iterator;
     Stack<Node> decisionStack;
 
     public IA(Board board, Man m) {
@@ -74,7 +79,25 @@ public class IA {
         this.team = m;
         root = new Node(board);
         decisionStack = new Stack<Node>();
+        //generateTree(root, 8);
+    }
+
+    public void play() throws GameOverException{
         generateTree(root, 8);
+        minmax(root, 8, true);
+
+        Node best = new Node(-1000);
+        Iterator<Node> iterator = root.child.iterator();
+        while(iterator.hasNext()){
+            Node aux = iterator.next();
+            best = best.compare(aux, true);
+        }
+        this.root = best;
+        try {
+            board.playMan(best.column, this.team );
+        } catch (ColumnFullException e) {
+            System.out.println("OOPS, this shouldn't have happened");
+        }
     }
 
     /*
@@ -82,7 +105,7 @@ public class IA {
     */
     public void generateTree(Node root, int depth) {
         root.generateChildren();
-        iterator = root.child.iterator();
+        Iterator<Node> iterator = root.child.iterator();
         while (iterator.hasNext() && depth != 0) {
             generateTree(iterator.next(), depth - 1);
         }
@@ -93,7 +116,7 @@ public class IA {
             return evaluateNode(node);
         }
 
-        iterator = node.child.iterator();
+        Iterator<Node> iterator = node.child.iterator();
         if (max) {
             int bestVal = -1000;
             while (iterator.hasNext()) {
@@ -102,6 +125,14 @@ public class IA {
             }
             node.score = bestVal;
             return bestVal;
+        }else{
+            int worstVal = +1000;
+            while (iterator.hasNext()) {
+                int val = minmax(iterator.next(), depth - 1, true);
+                worstVal = Math.max(worstVal, val);
+            }
+            node.score = worstVal;
+            return worstVal;
         }
     }
 

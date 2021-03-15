@@ -7,7 +7,8 @@ TO DO
 			- Identifying blocks (blocking 3s and 4s in a row)
 			- Control of the Zugzwang
 		+ Numeric score of gamestate
-		+ Minmax algorithm
+		+ 15-03-21 Tree: data structure
+		+ v1:15-03-21 Minmax algorithm
 		+ Alpha-beta pruning
 		
 	
