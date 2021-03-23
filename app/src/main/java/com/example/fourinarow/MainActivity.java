@@ -58,7 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void restart(View view){
         this.column = 0;
+        boolean devmode = control.devmode; //save the devmode variable
         control = new Controller(this, 7, 6);
+        control.devmode = devmode; //And reassign it
         control.start();
     }
 

@@ -2,7 +2,6 @@ package com.example.fourinarow;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Stack;
 
 public class IA {
 
@@ -78,15 +77,63 @@ public class IA {
     Controller control;
     Man team;
     Node root;
-    Stack<Node> decisionStack;
+
+    final int treeDepth = 4; //Constant depth of the tree
 
     public IA(Board board, Controller control, Man m) {
         this.board = board;
         this.control = control;
         this.team = m;
-        root = new Node(board);
-        decisionStack = new Stack<Node>();
-        //generateTree(root, 8);
+        Board b = (Board) board.clone();
+        root = new Node(b);
+        generateTree(root, treeDepth);
+    }
+
+    /*
+    Recursive method to generate a decision tree of depth N. Max depth is 42 for a 7x6 board.
+    */
+    public void generateTree(Node root, int depth) {
+        root.child = new ArrayList<Node>();
+        root.generateChildren();
+        Iterator<Node> iterator = root.child.iterator();
+        while (iterator.hasNext() && depth != 0) {
+            generateTree(iterator.next(), depth - 1);
+        }
+    }
+
+    /*
+    This method is ment to update the root node after the player places his man.
+    If the node tree has been correctly generated, the root node will have a child that "predicted" the move of the player.
+     */
+    public Node updateRootBoard(Node root, Board board) {
+        Node newRoot = null;
+
+        for (int i = 0; i < root.child.size(); i++) {
+            newRoot = root.child.get(i);
+            if (board.equals(newRoot.board)) {
+                break;
+            }
+        }
+
+        return newRoot;
+    }
+
+    /*
+    this method should go over the entire tree, generating all missing children in order to keep it at a certain length.
+    For example, if we want the tree to always be 8 nodes in depth, this method will check if
+    this is the case. And if it fins that it is not, it will call "generateTree" to fill in the missing nodes.
+     */
+    public void updateDecisionTree(Node root, int depth) {
+        if (depth != 0) {
+            if (root.child.isEmpty()) {
+                generateTree(root, depth);
+            } else {
+                Iterator<Node> iterator = root.child.iterator();
+                while (iterator.hasNext()) {
+                    updateDecisionTree(iterator.next(), depth-1);
+                }
+            }
+        }
     }
 
     /*
@@ -94,9 +141,11 @@ public class IA {
     to fins the best play possible.
      */
     public void play() throws GameOverException {
-        root.board = this.board;
-        generateTree(root, 2);
-        minmax(root, 2, true);
+
+        root = updateRootBoard(root, board);
+        updateDecisionTree(root, treeDepth);
+
+        minmax(root, treeDepth, true);
 
         Node best = new Node(root.board);
         best.score = -10000;
@@ -113,17 +162,6 @@ public class IA {
         }
     }
 
-    /*
-    Recursive method to generate a decision tree of depth N. Max depth is 42 for a 7x6 board.
-    */
-    public void generateTree(Node root, int depth) {
-        root.child = new ArrayList<Node>();
-        root.generateChildren();
-        Iterator<Node> iterator = root.child.iterator();
-        while (iterator.hasNext() && depth != 0) {
-            generateTree(iterator.next(), depth - 1);
-        }
-    }
 
     public int minmax(Node node, int depth, boolean max) {
         if (depth == 0 || node.terminal) {

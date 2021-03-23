@@ -2,7 +2,7 @@ package com.example.fourinarow;
 
 import java.util.ArrayList;
 
-public class Board{
+public class Board {
 
     Square[][] grid;
     int width;
@@ -14,9 +14,9 @@ public class Board{
         this.height = height;
         this.width = width;
 
-        grid = new Square[height][width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        grid = new Square[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 grid[i][j] = new Square();
             }
         }
@@ -25,8 +25,8 @@ public class Board{
     public void playMan(int col, Man m) throws ColumnFullException, GameOverException {
         int i = 0;
         while (i < height) {
-            if (grid[i][col].isEmpty()) {
-                grid[i][col].playMan(m);
+            if (grid[col][i].isEmpty()) {
+                grid[col][i].playMan(m);
                 mans++;
                 break;
             }
@@ -35,17 +35,17 @@ public class Board{
         if (i == height) {
             throw new ColumnFullException("COLUMN_FULL", "the column where you are trying to play is full");
         } else {
-            checkGameOver(i, col, m);
+            checkGameOver(col, i, m);
         }
     }
 
-    public void checkGameOver(int row, int col, Man m) throws GameOverException {
+    public void checkGameOver(int col, int row, Man m) throws GameOverException {
         Boolean gameover = false;
         int inRow = 0;
 
         //Vertical
         for (int i = 0; i < height; i++) {
-            if (grid[i][col].getMan() == m) {
+            if (grid[col][i].getMan() == m) {
                 inRow++;
             } else {
                 inRow = 0;
@@ -84,7 +84,7 @@ public class Board{
 
         //top left to bottom right
         inRow = 0;
-        int aux = (height-1)-row;
+        int aux = (height - 1) - row;
         for (int i = -Math.min(aux, col); row - i >= 0 && i + col < width; i++) {
             if (grid[row - i][col + i].getMan() == m) {
                 inRow++;
@@ -98,7 +98,7 @@ public class Board{
         }
     }
 
-    public Man getSquare(int x, int y){
+    public Man getSquare(int x, int y) {
         return grid[x][y].getMan();
     }
 
@@ -119,14 +119,31 @@ public class Board{
         return aux;
     }
 
-    public Object clone(){
+    /* Compare two boards. Check if width, height, number of mans played and their position.*/
+    public boolean equals(Board b) {
+        boolean equals = true;
+        if (b.height == this.height && b.width == this.width && b.mans == this.mans) {
+            for (int i = 0; i < this.width; i++) {
+                for (int j = 0; j < this.height; j++) {
+                    if (b.getSquare(i, j) != this.getSquare(i, j)) {
+                        equals = false;
+                    }
+                }
+            }
+        } else {
+            equals = false;
+        }
+        return equals;
+    }
+
+    public Object clone() {
         Board b = new Board(this.width, this.height);
 
         b.mans = this.mans;
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                b.grid[i][j] = new Square(this.getSquare(i,j));
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                b.grid[i][j] = new Square(this.getSquare(i, j));
             }
         }
         return b;
