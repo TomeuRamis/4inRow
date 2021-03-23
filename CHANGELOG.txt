@@ -8,7 +8,8 @@ TO DO
 			- Control of the Zugzwang
 		+ Numeric score of gamestate
 		+ 15-03-21 Tree: data structure
-		+ v1:15-03-21 Minmax algorithm
+		+ v0.1:15-03-21 Minmax algorithm
+			- v0.2:23-03-21 Minmax algorithm (now plays badly with you)
 		+ Alpha-beta pruning
 		
 	

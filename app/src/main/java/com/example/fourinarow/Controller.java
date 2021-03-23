@@ -31,7 +31,7 @@ public class Controller extends Thread {
     public void startGame() {
         main.updateTextViewBoard(board.toString());
         assignTeams();
-        ia = new IA(this.board, this.manIA);
+        ia = new IA(this.board, this, this.manIA);
         gameLoop();
 
         main.updateTextViewCol("En of game");

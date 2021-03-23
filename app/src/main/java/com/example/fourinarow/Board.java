@@ -2,14 +2,13 @@ package com.example.fourinarow;
 
 import java.util.ArrayList;
 
-public class Board {
+public class Board{
 
     Square[][] grid;
     int width;
     int height;
 
     int mans = 0; //number of total mans played
-    boolean ended = false; //I fthe game has ended
 
     public Board(int width, int height) {
         this.height = height;
@@ -20,19 +19,6 @@ public class Board {
             for (int j = 0; j < width; j++) {
                 grid[i][j] = new Square();
             }
-        }
-    }
-
-    public Board (Board b, int col, Man m) throws ColumnFullException{
-        this.height = b.height;
-        this.width = b.width;
-        this.grid = b.grid;
-        this.mans = b.mans;
-
-        try {
-            playMan(col, m);
-        }catch(GameOverException e){
-            this.ended = true;
         }
     }
 
@@ -133,4 +119,16 @@ public class Board {
         return aux;
     }
 
+    public Object clone(){
+        Board b = new Board(this.width, this.height);
+
+        b.mans = this.mans;
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                b.grid[i][j] = new Square(this.getSquare(i,j));
+            }
+        }
+        return b;
+    }
 }

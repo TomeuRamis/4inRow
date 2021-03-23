@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveRight(View view) {
-        if (column < control.getWidth()) {
+        if (column < control.getWidth()-1) {
             column += 1;
         }
         updateTextViewCol();

@@ -46,55 +46,68 @@ public class IA {
 
         public void generateChildren() {
             Man m;
-            //Study who is going to play next, black or white
-            if (board.mans % 2 == 0) {
-                m = Man.BLACK;
-            } else {
-                m = Man.WHITE;
-            }
-            //Generate all of the possible children (play one man on each column, if possible)
-            for (int i = 0; i < board.width; i++) {
-                try {
-                    Board b = new Board(this.board, i, m);
-                    Node node = new Node(b, i);
-                    if (b.ended) { //Mark the node as a leaf node (terminal node) and save who made the winning move
+            if (!this.terminal) {
+                //Study who is going to play next, black or white
+                if (board.mans % 2 == 0) {
+                    m = Man.BLACK;
+                } else {
+                    m = Man.WHITE;
+                }
+                //Generate all of the possible children (play one man on each column, if possible)
+                for (int i = 0; i < board.width; i++) {
+                    Board b = null;
+                    Node node = null;
+                    try {
+                        b = (Board) this.board.clone();
+                        b.playMan(i, m);
+                        node = new Node(b, i);
+                    } catch (ColumnFullException e) { //If the column is full, try the next one
+                        continue;
+                    } catch (GameOverException e) { //If the game ends we mark the node as terminal and save who made the winning move
+                        node = new Node(b, i);
                         node.terminal = true;
                         node.win = m;
                     }
                     this.child.add(node);
-                } catch (ColumnFullException e) { //If the column is full, try the next one
-                    continue;
                 }
             }
         }
     }
 
     Board board;
+    Controller control;
     Man team;
     Node root;
     Stack<Node> decisionStack;
 
-    public IA(Board board, Man m) {
+    public IA(Board board, Controller control, Man m) {
         this.board = board;
+        this.control = control;
         this.team = m;
         root = new Node(board);
         decisionStack = new Stack<Node>();
         //generateTree(root, 8);
     }
 
-    public void play() throws GameOverException{
-        generateTree(root, 8);
-        minmax(root, 8, true);
+    /*
+    Each turn we generate the decision tree, run the minmax algorithm and look to the childs of root
+    to fins the best play possible.
+     */
+    public void play() throws GameOverException {
+        root.board = this.board;
+        generateTree(root, 2);
+        minmax(root, 2, true);
 
-        Node best = new Node(-1000);
+        Node best = new Node(root.board);
+        best.score = -10000;
         Iterator<Node> iterator = root.child.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Node aux = iterator.next();
             best = best.compare(aux, true);
         }
         this.root = best;
         try {
-            board.playMan(best.column, this.team );
+            this.control.playMan(best.column);
         } catch (ColumnFullException e) {
             System.out.println("OOPS, this shouldn't have happened");
         }
@@ -104,6 +117,7 @@ public class IA {
     Recursive method to generate a decision tree of depth N. Max depth is 42 for a 7x6 board.
     */
     public void generateTree(Node root, int depth) {
+        root.child = new ArrayList<Node>();
         root.generateChildren();
         Iterator<Node> iterator = root.child.iterator();
         while (iterator.hasNext() && depth != 0) {
@@ -125,11 +139,11 @@ public class IA {
             }
             node.score = bestVal;
             return bestVal;
-        }else{
+        } else {
             int worstVal = +1000;
             while (iterator.hasNext()) {
                 int val = minmax(iterator.next(), depth - 1, true);
-                worstVal = Math.max(worstVal, val);
+                worstVal = Math.min(worstVal, val);
             }
             node.score = worstVal;
             return worstVal;

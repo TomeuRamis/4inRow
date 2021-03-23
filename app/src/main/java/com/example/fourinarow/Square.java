@@ -6,6 +6,9 @@ public class Square {
     public Square(){
         this.man = Man.EMPTY;
     }
+    public Square(Man m){
+        this.man = m;
+    }
 
     public void playMan(Man m){
         this.man = m;
