@@ -29,13 +29,13 @@ public class IA {
         /*Compares this node against a second node. If max=true it will return the biggest, otherwise return the smallest*/
         public Node compare(Node n, boolean max) {
             if (max) {
-                if (this.score > n.score) {
+                if (this.score >= n.score) {
                     return this;
                 } else {
                     return n;
                 }
             } else {
-                if (this.score < n.score) {
+                if (this.score <= n.score) {
                     return this;
                 } else {
                     return n;
@@ -107,14 +107,17 @@ public class IA {
      */
     public Node updateRootBoard(Node root, Board board) {
         Node newRoot = null;
-
-        for (int i = 0; i < root.child.size(); i++) {
+        Boolean foundNewState = false;
+        for (int i = 0; i < root.child.size() && !foundNewState; i++) {
             newRoot = root.child.get(i);
             if (board.equals(newRoot.board)) {
-                break;
+                foundNewState = true;
             }
         }
-
+        if(!foundNewState){
+            newRoot = new Node(this.board);
+            generateTree(newRoot, treeDepth);
+        }
         return newRoot;
     }
 
@@ -130,7 +133,7 @@ public class IA {
             } else {
                 Iterator<Node> iterator = root.child.iterator();
                 while (iterator.hasNext()) {
-                    updateDecisionTree(iterator.next(), depth-1);
+                    updateDecisionTree(iterator.next(), depth - 1);
                 }
             }
         }
@@ -145,7 +148,7 @@ public class IA {
         root = updateRootBoard(root, board);
         updateDecisionTree(root, treeDepth);
 
-        minmax(root, treeDepth, true);
+        minmax(root, treeDepth, true, -10000, 10000);
 
         Node best = new Node(root.board);
         best.score = -10000;
@@ -182,6 +185,39 @@ public class IA {
             while (iterator.hasNext()) {
                 int val = minmax(iterator.next(), depth - 1, true);
                 worstVal = Math.min(worstVal, val);
+            }
+            node.score = worstVal;
+            return worstVal;
+        }
+    }
+
+    public int minmax(Node node, int depth, boolean max, int alpha, int beta) {
+        if (depth == 0 || node.terminal) {
+            return evaluateNode(node);
+        }
+
+        Iterator<Node> iterator = node.child.iterator();
+        if (max) {
+            int bestVal = -1000;
+            while (iterator.hasNext()) {
+                int val = minmax(iterator.next(), depth - 1, false, alpha, beta);
+                bestVal = Math.max(bestVal, val);
+                alpha = Math.max(alpha, bestVal);
+                if (beta <= alpha) { //Prune all other branches
+                    break;
+                }
+            }
+            node.score = bestVal;
+            return bestVal;
+        } else {
+            int worstVal = +1000;
+            while (iterator.hasNext()) {
+                int val = minmax(iterator.next(), depth - 1, true, alpha, beta);
+                worstVal = Math.min(worstVal, val);
+                beta = Math.min(beta, worstVal);
+                if(beta <= alpha){ //Prune
+                    break;
+                }
             }
             node.score = worstVal;
             return worstVal;

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,14 +59,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void restart(View view){
         this.column = 0;
-        boolean devmode = control.devmode; //save the devmode variable
+        setDevMode(false);
         control = new Controller(this, 7, 6);
-        control.devmode = devmode; //And reassign it
         control.start();
     }
 
     public void toggleDevMode(View view){
         this.control.toggleDevMode();
+    }
+
+    public void setDevMode(Boolean devmode){
+        Switch swt = this.findViewById(R.id.switch1);
+        swt.setChecked(devmode);
     }
 
     public void updateTextViewCol() {

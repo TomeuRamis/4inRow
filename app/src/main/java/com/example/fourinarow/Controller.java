@@ -109,7 +109,6 @@ public class Controller extends Thread {
     And set the values of PlayingMan accordingly.
     Update text view */
     private void newTurn() {
-
         turn += 1;
         blackPlays = !blackPlays;
 

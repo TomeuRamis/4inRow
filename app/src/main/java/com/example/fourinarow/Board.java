@@ -14,9 +14,9 @@ public class Board {
         this.height = height;
         this.width = width;
 
-        grid = new Square[width][height];
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        grid = new Square[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 grid[i][j] = new Square();
             }
         }
@@ -25,8 +25,8 @@ public class Board {
     public void playMan(int col, Man m) throws ColumnFullException, GameOverException {
         int i = 0;
         while (i < height) {
-            if (grid[col][i].isEmpty()) {
-                grid[col][i].playMan(m);
+            if (grid[i][col].isEmpty()) {
+                grid[i][col].playMan(m);
                 mans++;
                 break;
             }
@@ -40,12 +40,11 @@ public class Board {
     }
 
     public void checkGameOver(int col, int row, Man m) throws GameOverException {
-        Boolean gameover = false;
         int inRow = 0;
 
         //Vertical
         for (int i = 0; i < height; i++) {
-            if (grid[col][i].getMan() == m) {
+            if (grid[i][col].getMan() == m) {
                 inRow++;
             } else {
                 inRow = 0;
@@ -123,8 +122,8 @@ public class Board {
     public boolean equals(Board b) {
         boolean equals = true;
         if (b.height == this.height && b.width == this.width && b.mans == this.mans) {
-            for (int i = 0; i < this.width; i++) {
-                for (int j = 0; j < this.height; j++) {
+            for (int i = 0; i < this.height; i++) {
+                for (int j = 0; j < this.width; j++) {
                     if (b.getSquare(i, j) != this.getSquare(i, j)) {
                         equals = false;
                     }
@@ -136,13 +135,16 @@ public class Board {
         return equals;
     }
 
+    /*
+    Returns a new Board equal to the original.
+     */
     public Object clone() {
         Board b = new Board(this.width, this.height);
 
         b.mans = this.mans;
 
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 b.grid[i][j] = new Square(this.getSquare(i, j));
             }
         }
