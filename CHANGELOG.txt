@@ -4,13 +4,15 @@ TO DO
 			- 13-03-21 Identifying win-loose states
 			- 14-03-21 Identifying ties
 			- Identifying threats (3 in a row)
-			- Identifying blocks (blocking 3s and 4s in a row)
+			- 30-03-21 Identifying blocks (blocking 3s and 2s in a row)
 			- Control of the Zugzwang
 		+ Numeric score of gamestate
 		+ 15-03-21 Tree: data structure
 		+ v0.1: 15-03-21 Minmax algorithm
 			- v0.2: 23-03-21 Minmax algorithm (now plays badly with you)
 			- v0.3: 23-03-21 Now it has preference for left placement, and plays a little better
+			- v0.4: 30-03-21 I don't know what I did but with depth 5 plays fine
+			- v0.5: 30-03-21 Added evaluation for blocks. Hard to tell if it imporves anything
 		+ 24-03-21 Alpha-beta pruning
 		
 	

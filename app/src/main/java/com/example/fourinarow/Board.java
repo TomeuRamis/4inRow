@@ -101,6 +101,26 @@ public class Board {
         return grid[x][y].getMan();
     }
 
+    public Man getTopMan(int y) {
+        for (int i = height - 1; i >= 0; i--) {
+            Man m = getSquare(i, y);
+            if (m != Man.EMPTY) {
+                return m;
+            }
+        }
+        return Man.EMPTY;
+    }
+
+    public int getTopPos(int y) {
+        for (int i = height - 1; i >= 0; i--) {
+            Man m = getSquare(i, y);
+            if (m != Man.EMPTY) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public String toString() {
         String aux = "";
