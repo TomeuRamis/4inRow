@@ -34,7 +34,6 @@ public class Controller extends Thread {
         ia = new IA(this.board, this, this.manIA);
         gameLoop();
 
-        main.updateTextViewCol("En of game");
         main.updateTextViewBoard(board.toString());
     }
 
@@ -65,9 +64,11 @@ public class Controller extends Thread {
                 turnPlayer();
             } else {
                 if (playingMan == manPlayer) {
+                    main.updateTextViewState("Make a move!");
                     turnPlayer();
                 } else {
                     try {
+                        main.updateTextViewState("IA's turn. Wait.");
                         this.ia.play();
                     } catch (GameOverException e) {
                         gameOver = true;
@@ -75,10 +76,11 @@ public class Controller extends Thread {
                 }
             }
         }
-        main.updateTextViewCol("En of game");
+        main.updateTextViewState("Game over!");
     }
 
     public void turnPlayer() {
+        main.setPlayerTurn(true);
         while (playingMan == manPlayer) {
             try {
                 Thread.sleep(5);
@@ -86,6 +88,7 @@ public class Controller extends Thread {
                 e.printStackTrace();
             }
         }
+        main.setPlayerTurn(false);
     }
 
     public void turnIA() {

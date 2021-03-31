@@ -82,12 +82,14 @@ public class IA {
 
     final int treeDepth = 5; //Constant depth of the tree
     //Node evaluation scores
-    final int WIN = 100;
+    final int WIN = 400;
     final int TIE = 0;
     final int UNFINISHED = -1;
-    final int BLOCK3 = 14;
-    final int BLOCK2 = 5;
-    final int BLOCK1 = 0;
+    //BLOCK(n) = BLOCK(n-1)*7 + 1
+    //EG: if we have 1 3-in-a-row, and 7 2-in-a-row, we always want to stop the 3 over the 2s.
+    final int BLOCK3 = 57;
+    final int BLOCK2 = 8;
+    final int BLOCK1 = 1;
     final int BLOCK0 = 0;
 
     public IA(Board board, Controller control, Man m) {
@@ -191,7 +193,7 @@ public class IA {
                     index--;
                 }
             }
-            if(index < 0){
+            if (index < 0) {
                 System.err.println("What. Error at play algorithm. Why has this happened");
             }
         }
@@ -264,140 +266,128 @@ public class IA {
     }
 
     public int evaluateNode(Node node) {
-        int value = UNFINISHED;
+        int value = 0;
 
-        if (node.terminal) { //Marked as a leaf node
-            switch (node.win) {
-                case BLACK:
-                    if (Man.BLACK == team) { //IA wins
-                        value = WIN;
-                    } else { //IA looses
-                        value = -WIN;
-                    }
-                    break;
-                case WHITE:
-                    if (Man.WHITE == team) { //IA wins
-                        value = WIN;
-                    } else { //IA looses
-                        value = -WIN;
-                    }
-                    break;
-                case EMPTY:
-                    if (tie(node.board)) { //TIE
-                        value = TIE;
-                    } else { //The game has not concluded "DEPRECATED" (should never occur)
-                        value = UNFINISHED;
-                        System.err.println("The game has not finished, yet the node is marked as terminal");
-                    }
-                    break;
-
-            }
-        } else { //Not marked as a leaf, meaning the game has not ended
-            /* We are using the same base logic as the end game detection algorithm.
-            We will look in the 7 possible directions of the block: bottom, left, right and
-            the 4 diagonals.
-            Each time, depending on the mans blocked we add/subtract to the score of the node.
-             */
-            int col = node.column;
-            int row = node.board.getTopPos(col);
-
-            Man played = node.board.getSquare(row, col);
-            Man rival = played.getRival();
-
-            int inRow = 0;
-            Man aux;
-
-            //Vertical
-            for (int i = row - 1; i >= 0; i--) {
-                aux = node.board.getSquare(i, col);
-                if (aux == rival) { //Count how many Mans is vertically blocking
-                    inRow++;
-                } else if (aux == played) {
-                    break;
-                } else {
-                    System.err.println("what? error at vertical node evaluation");
-                    break;
+        //If a endgame has been reached, add the corresponding score
+        switch (node.win) {
+            case BLACK:
+            case WHITE:
+                    value += WIN; //Win of either team. 
+                break;
+            case EMPTY:
+                if (tie(node.board)) { //TIE
+                    value += TIE;
+                }  else{
+                    value += UNFINISHED;
                 }
-            }
-            value += evaluateInRow(inRow);
+                break;
+        }
+        //Not marked as a leaf, meaning the game has not ended
+        /* We are using the same base logic as the end game detection algorithm.
+        We will look in the 7 possible directions of the block: bottom, left, right and
+        the 4 diagonals.
+        Each time, depending on the mans blocked we add/subtract to the score of the node.
+         */
+        int col = node.column;
+        int row = node.board.getTopPos(col);
 
-            //Horizontal left
-            inRow = 0;
-            for (int i = col - 1; i >= 0; i--) {
-                aux = node.board.getSquare(row, i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
+        Man played = node.board.getSquare(row, col);
+        Man rival = played.getRival();
 
-            //Horizontal right
-            inRow = 0;
-            for (int i = col + 1; i < node.board.width; i++) {
-                aux = node.board.getSquare(row, i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
+        int inRow = 0;
+        Man aux;
 
-            //top right
-            inRow = 0;
-            for (int i = 0; row + i < node.board.height && col + i < node.board.width; i++) {
-                aux = node.board.getSquare(row + i, col + i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
-
-            //bottom right
-            inRow = 0;
-            for (int i = 0; row - i >= 0 && col + i < node.board.width; i++) {
-                aux = node.board.getSquare(row - i, col + i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
-
-            //bottom left
-            inRow = 0;
-            for (int i = 0; row - i >= 0 && col - i >= 0; i++) {
-                aux = node.board.getSquare(row - i, col - i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
-
-            //top left
-            inRow = 0;
-            for (int i = 0; row + i < node.board.height && col - i >= 0; i++) {
-                aux = node.board.getSquare(row + i, col - i);
-                if (aux == rival) {
-                    inRow++;
-                } else if (aux == played || aux == Man.EMPTY) {
-                    break;
-                }
-            }
-            value += evaluateInRow(inRow);
-
-            //If the move was made by the rival, the score is negative
-            if (played != team) {
-                value = -value;
+        //Vertical
+        for (int i = row - 1; i >= 0; i--) {
+            aux = node.board.getSquare(i, col);
+            if (aux == rival) { //Count how many Mans is vertically blocking
+                inRow++;
+            } else if (aux == played) {
+                break;
+            } else {
+                System.err.println("what? error at vertical node evaluation");
+                break;
             }
         }
+        value += evaluateInRow(inRow);
+
+        //Horizontal left
+        inRow = 0;
+        for (int i = col - 1; i >= 0; i--) {
+            aux = node.board.getSquare(row, i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //Horizontal right
+        inRow = 0;
+        for (int i = col + 1; i < node.board.width; i++) {
+            aux = node.board.getSquare(row, i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //top right
+        inRow = 0;
+        for (int i = 0; row + i < node.board.height && col + i < node.board.width; i++) {
+            aux = node.board.getSquare(row + i, col + i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //bottom right
+        inRow = 0;
+        for (int i = 0; row - i >= 0 && col + i < node.board.width; i++) {
+            aux = node.board.getSquare(row - i, col + i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //bottom left
+        inRow = 0;
+        for (int i = 0; row - i >= 0 && col - i >= 0; i++) {
+            aux = node.board.getSquare(row - i, col - i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //top left
+        inRow = 0;
+        for (int i = 0; row + i < node.board.height && col - i >= 0; i++) {
+            aux = node.board.getSquare(row + i, col - i);
+            if (aux == rival) {
+                inRow++;
+            } else if (aux == played || aux == Man.EMPTY) {
+                break;
+            }
+        }
+        value += evaluateInRow(inRow);
+
+        //If the move was made by the rival, the score is negative
+        if (played != team) {
+            value = -value;
+        }
+
         node.score = value;
         return value;
     }

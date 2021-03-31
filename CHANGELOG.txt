@@ -15,8 +15,9 @@ TO DO
 			- v0.4: 30-03-21 I don't know what I did but with depth 5 plays fine
 			- v0.5: 30-03-21 Added evaluation for blocks. Hard to tell if it imporves anything
 			- v0.6: 31-03-21 Now, if all children are of equal score, choose the most middle column. (Much better)  
-			- v0.7: TODO when the game is lost anyway it needs to still choose the "best" play.
+			- v0.7: when the game is lost anyway it needs to still choose the "best" play. (I think its done)
 		+ 24-03-21 Alpha-beta pruning
+		+ Recursive algorithms transformation to iterative algorithms.
 		
 	
 DONE
@@ -27,3 +28,5 @@ DONE
 		+ 10-03-21 Better turns (IA vs player)
 		+ 10-03-21 Random assignment of teams
 		+ 13-03-21 Some sort of DEV mode
+		
+		+ 31-03-21 Updated visuals and added PlayerTurn variable in main to control the players turn (unable to disable the place button)

@@ -4,7 +4,8 @@
     <string name="ButtonLeft">←</string>
     <string name="ButtonRight">→</string>
     <string name="ButtonPlaceMan">Place</string>
-    <string name="TextViewColumn">NULL</string>
+    <string name="TextViewState">NULL</string>
     <string name="ButtonRestart">RESTART</string>
     <string name="ButtonDevMode">Toggle Dev Mode</string>
+    <string name="TextViewColumnIndicator">"       ^"</string>
 </resources>

@@ -4,16 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     int column = 0;
+    boolean playerTurn = true;
+
     Controller control;
 
     TextView tv;
     TextView tvcol;
+    TextView tvstate;
+
+    Button bplacen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +28,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
         tv.setText("hola");
-        tvcol = (TextView) findViewById(R.id.textView2);
-        tvcol.setText("0");
+        tvcol = (TextView) findViewById(R.id.textViewColumnIndicator);
+        tvcol.setText("       ^ ");
+        tvstate = (TextView) findViewById(R.id.textView2);
+        tvstate.setText("Begin playing");
+
+        bplacen = (Button) findViewById(R.id.buttonPlace);
 
         control = new Controller(this, 7, 6);
 
@@ -40,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveRight(View view) {
-        if (column < control.getWidth()-1) {
+        if (column < control.getWidth() - 1) {
             column += 1;
         }
         updateTextViewCol();
@@ -49,39 +59,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void placeMan(View view) {
-        try {
-            control.playMan(column);
-            System.out.println("MAN PLAYED");
-        } catch (ColumnFullException e) {
-            updateTextViewCol("This column is full");
+        if (playerTurn) {
+            try {
+                control.playMan(column);
+                System.out.println("MAN PLAYED");
+                playerTurn = false;
+            } catch (ColumnFullException e) {
+                updateTextViewState("This column is full");
+            }
         }
     }
 
-    public void restart(View view){
+    public void restart(View view) {
         this.column = 0;
         setDevMode(false);
         control = new Controller(this, 7, 6);
         control.start();
+        tvcol.setText("       ^ ");
+        tvstate.setText("Game restarted.");
     }
 
-    public void toggleDevMode(View view){
+    public void toggleDevMode(View view) {
         this.control.toggleDevMode();
     }
 
-    public void setDevMode(Boolean devmode){
+    public void setDevMode(Boolean devmode) {
         Switch swt = this.findViewById(R.id.switch1);
         swt.setChecked(devmode);
     }
 
     public void updateTextViewCol() {
-        tvcol.setText(Integer.toString(column));
+        String aux = "       ";
+        for (int i = 0; i < column; i++) {
+            aux += "        ";
+        }
+        aux += " ^ ";
+        tvcol.setText(aux);
     }
 
-    public void updateTextViewCol(String str) {
-        tvcol.setText(str);
+    public void updateTextViewState(String str) {
+        tvstate.setText(str);
     }
 
     public void updateTextViewBoard(String str) {
         tv.setText(str);
+    }
+
+    public void setPlayerTurn(Boolean t) {
+        this.playerTurn = t;
     }
 }
