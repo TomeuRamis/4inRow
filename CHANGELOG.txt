@@ -7,12 +7,15 @@ TO DO
 			- 30-03-21 Identifying blocks (blocking 3s and 2s in a row)
 			- Control of the Zugzwang
 		+ Numeric score of gamestate
+			- v0.1: 30-03-21 Some cases evaluated. Added constant to score 0, 1, 2 and 3 blocks.
 		+ 15-03-21 Tree: data structure
 		+ v0.1: 15-03-21 Minmax algorithm
 			- v0.2: 23-03-21 Minmax algorithm (now plays badly with you)
 			- v0.3: 23-03-21 Now it has preference for left placement, and plays a little better
 			- v0.4: 30-03-21 I don't know what I did but with depth 5 plays fine
 			- v0.5: 30-03-21 Added evaluation for blocks. Hard to tell if it imporves anything
+			- v0.6: 31-03-21 Now, if all children are of equal score, choose the most middle column. (Much better)  
+			- v0.7: TODO when the game is lost anyway it needs to still choose the "best" play.
 		+ 24-03-21 Alpha-beta pruning
 		
 	

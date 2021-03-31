@@ -160,12 +160,40 @@ public class IA {
 
         minmax(root, treeDepth, true, -10000, 10000);
 
+        boolean equal = true;
         Node best = new Node(root.board);
         best.score = -10000;
         Iterator<Node> iterator = root.child.iterator();
         while (iterator.hasNext()) {
             Node aux = iterator.next();
+
+            if (best.score != -10000 && best.score != aux.score) {
+                equal = false;
+            }
+
             best = best.compare(aux, true);
+        }
+
+        /*
+        If all the children are equally bad (or good), we will try to play the man as centered as possible.
+        This solves the opening play, because otherwise we would play at 0, instead of the recommended play
+        at the middle.
+         */
+        if (equal) {
+            boolean found = false;
+            int index = (int) Math.ceil(root.child.size() / 2); //Get the middle index
+            while (!found && index >= 0) {
+                try {
+                    best = root.child.get(index);
+                    found = true;
+                } catch (IndexOutOfBoundsException ex) {
+                    System.err.println("Array of children not big enough, trying smaller value.");
+                    index--;
+                }
+            }
+            if(index < 0){
+                System.err.println("What. Error at play algorithm. Why has this happened");
+            }
         }
         this.root = best;
         try {
@@ -307,7 +335,7 @@ public class IA {
 
             //Horizontal right
             inRow = 0;
-            for (int i = col; i < node.board.width; i++) {
+            for (int i = col + 1; i < node.board.width; i++) {
                 aux = node.board.getSquare(row, i);
                 if (aux == rival) {
                     inRow++;
