@@ -3,7 +3,7 @@ package com.example.fourinarow;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class IA {
+public class IA extends Thread{
 
     public class Node {
         Board board = null;
@@ -151,11 +151,16 @@ public class IA {
         }
     }
 
+    @Override
+    public void run(){
+        play();
+    }
+
     /*
     Each turn we generate the decision tree, run the minmax algorithm and look to the childs of root
     to fins the best play possible.
      */
-    public void play() throws GameOverException {
+    public void play(){
 
         root = updateRootBoard(root, board);
         updateDecisionTree(root, treeDepth);
@@ -244,7 +249,7 @@ public class IA {
                 int val = minmax(iterator.next(), depth - 1, false, alpha, beta);
                 bestVal = Math.max(bestVal, val);
                 alpha = Math.max(alpha, bestVal);
-                if (beta <= alpha) { //Prune all other branches
+                if (beta < alpha) { //Prune all other branches
                     break;
                 }
             }
@@ -256,7 +261,7 @@ public class IA {
                 int val = minmax(iterator.next(), depth - 1, true, alpha, beta);
                 worstVal = Math.min(worstVal, val);
                 beta = Math.min(beta, worstVal);
-                if (beta <= alpha) { //Prune
+                if (beta < alpha) { //Prune
                     break;
                 }
             }

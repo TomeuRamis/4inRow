@@ -69,9 +69,9 @@ public class Controller extends Thread {
                 } else {
                     try {
                         main.updateTextViewState("IA's turn. Wait.");
-                        this.ia.play();
-                    } catch (GameOverException e) {
-                        gameOver = true;
+                        this.ia.run();
+                    }catch(Exception e){
+                        System.err.println(e.getMessage());
                     }
                 }
             }
