@@ -17,6 +17,7 @@ TO DO
 			- v0.6: 31-03-21 Now, if all children are of equal score, choose the most middle column. (Much better)  
 			- v0.7: when the game is lost anyway it needs to still choose the "best" play. (I think its done)
 		+ 24-03-21 Alpha-beta pruning
+			- 13-04-21 Changed alpha-beta comparation from "<=" to "<" (to avoid prunning move that would end the game)
 		+ Recursive algorithms transformation to iterative algorithms.
 		
 	

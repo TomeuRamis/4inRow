@@ -11,7 +11,6 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
 
     int column = 0;
-    boolean playerTurn = true;
 
     Controller control;
 
@@ -59,14 +58,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void placeMan(View view) {
-        if (playerTurn) {
-            try {
-                control.playMan(column);
-                System.out.println("MAN PLAYED");
-                playerTurn = false;
-            } catch (ColumnFullException e) {
-                updateTextViewState("This column is full");
-            }
+        try {
+            control.playerTryPlayMan(column);
+            System.out.println("MAN PLAYED");
+        } catch (ColumnFullException e) {
+            updateTextViewState("This column is full");
         }
     }
 
@@ -103,9 +99,5 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateTextViewBoard(String str) {
         tv.setText(str);
-    }
-
-    public void setPlayerTurn(Boolean t) {
-        this.playerTurn = t;
     }
 }

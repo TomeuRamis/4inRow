@@ -187,6 +187,9 @@ public class IA extends Thread{
         at the middle.
          */
         if (equal) {
+            if(best.score == -100){
+                System.err.println("I lost :(");
+            }
             boolean found = false;
             int index = (int) Math.ceil(root.child.size() / 2); //Get the middle index
             while (!found && index >= 0) {

@@ -10,6 +10,7 @@ public class Controller extends Thread {
     Boolean gameOver = false;
 
     IA ia;
+    Thread iaThread;
 
     Boolean blackPlays = true;
     Man playingMan = Man.BLACK;
@@ -23,6 +24,9 @@ public class Controller extends Thread {
 
     @Override
     public void run() {
+        if(ia != null && ia.getState() != State.TERMINATED){
+            ia.interrupt();
+        }
         System.out.println("Game start!");
         startGame();
         System.out.println("Game end");
@@ -67,12 +71,8 @@ public class Controller extends Thread {
                     main.updateTextViewState("Make a move!");
                     turnPlayer();
                 } else {
-                    try {
-                        main.updateTextViewState("IA's turn. Wait.");
-                        this.ia.run();
-                    }catch(Exception e){
-                        System.err.println(e.getMessage());
-                    }
+                    main.updateTextViewState("IA's turn. Wait.");
+                    turnIA();
                 }
             }
         }
@@ -80,29 +80,22 @@ public class Controller extends Thread {
     }
 
     public void turnPlayer() {
-        main.setPlayerTurn(true);
-        while (playingMan == manPlayer) {
+        while (devmode || playingMan == manPlayer) {
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        main.setPlayerTurn(false);
     }
 
     public void turnIA() {
-        int col = 0;
         while (playingMan == manIA) {
             try {
-                playMan(col);
-            } catch (ColumnFullException e) {
-                if (col < 6) {
-                    col += 1;
-                } else { //All columns are full
-                    gameOver = true;
-                    break;
-                }
+                this.ia.run();
+                ia.join();
+            }catch(Exception e){
+                System.err.println(e.getMessage());
             }
         }
     }
@@ -134,6 +127,12 @@ public class Controller extends Thread {
         } catch (GameOverException e) {
             gameOver = true;
             newTurn();
+        }
+    }
+
+    public void playerTryPlayMan(int col) throws ColumnFullException{
+        if(devmode || playingMan == manPlayer){
+            playMan(col);
         }
     }
 
