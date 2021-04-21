@@ -113,7 +113,7 @@ public class IA extends Thread {
         this.team = m;
         Board b = (Board) board.clone();
         root = new Node(b);
-        generateTree(root, treeDepth-1);
+        generateTree(root, treeDepth);
     }
 
     /*
@@ -122,9 +122,14 @@ public class IA extends Thread {
     public void generateTree(Node root, int depth) {
         root.child = new ArrayList<Node>();
         root.generateChildren();
-        Iterator<Node> iterator = root.child.iterator();
-        while (iterator.hasNext() && depth > 0) {
-            generateTree(iterator.next(), depth - 1);
+        if (--depth > 0) {
+            Node node;
+            for (int i = 0; i < root.child.size(); i++) {
+                node = root.child.get(i);
+                if (!node.terminal) {
+                    generateTree(node, depth);
+                }
+            }
         }
     }
 
@@ -143,7 +148,7 @@ public class IA extends Thread {
         }
         if (!foundNewState) {
             newRoot = new Node(this.board);
-            generateTree(newRoot, treeDepth-1);
+            generateTree(newRoot, treeDepth);
         }
         return newRoot;
     }
@@ -154,9 +159,9 @@ public class IA extends Thread {
     this is the case. And if it finds that it is not, it will call "generateTree" to fill in the missing nodes.
      */
     public void updateDecisionTree(Node root, int depth) {
-        if (depth != 0) {
+        if (depth > 0) {
             if (root.isLeaf() && !root.terminal) {
-                generateTree(root, depth-1);
+                generateTree(root, depth);
             } else {
                 Iterator<Node> iterator = root.child.iterator();
                 while (iterator.hasNext()) {
@@ -179,7 +184,7 @@ public class IA extends Thread {
 
         root = updateRootBoard(root, board);
         root.father = null;
-        updateDecisionTree(root, treeDepth);
+        //updateDecisionTree(root, treeDepth);
 
         //minmax(root, treeDepth, true, -10000, 10000);
         iterativeMinmax(root, true);
@@ -304,7 +309,7 @@ public class IA extends Thread {
     public int chooseBestChildScore(boolean max, ArrayList<Integer> values) {
         int i = 0;
         int score = values.get(i++);
-        while (i < values.size() ) {
+        while (i < values.size()) {
             if (max) {
                 if (score < values.get(i)) score = values.get(i);
             } else {
@@ -318,13 +323,13 @@ public class IA extends Thread {
     public void iterativeMinmax(Node root, boolean max) {
         //Init variables
         //Local indicator of the current level (or current depth)
-        depth = treeDepth+1;
+        depth = treeDepth + 1;
         //Array of current father on each level
         father = new Node[depth];
         //Array of lists of values for each level
         values = new ArrayList[depth];
 
-        for(int i = 0; i <depth; i++){
+        for (int i = 0; i < depth; i++) {
             father[i] = null;
             values[i] = new ArrayList<Integer>();
         }
@@ -340,9 +345,16 @@ public class IA extends Thread {
 
             //Node is leaf and needs to be evaluated. This node is a brother or a son of the last one
             if (node.isLeaf() && father[depth] == node.father) {
-
-                node.score = evaluateNode(node);
-                values[depth].add(node.score);
+                //If the depth is 0 or its a terminal node, we have arrived at the bottom of the tree
+                if(depth == 0 || node.terminal) {
+                    node.score = evaluateNode(node);
+                    values[depth].add(node.score);
+                }else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
+                {
+                    generateTree(node, depth);
+                    //We add this node again in order to re-evaluate it
+                    stack.add(node);
+                }
 
             } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
             else if (node.isLeaf() && father[depth] != node.father) {
@@ -352,8 +364,16 @@ public class IA extends Thread {
                 while (father[depth] != node.father) {
                     max = increaseDepth(max);
                 }
-                node.score = evaluateNode(node);
-                values[depth].add(node.score);
+
+                //If it's a terminal node evaluate it
+                if(node.terminal) {
+                    node.score = evaluateNode(node);
+                    values[depth].add(node.score);
+                }else{ //If its not, generate a deeper tree
+                    generateTree(node, depth);
+                    //We add this node again in order to re-evaluate it
+                    stack.add(node);
+                }
 
             } //Node is a son of the node before him
             else if (!node.isLeaf() && father[depth] == node.father) {
@@ -367,7 +387,7 @@ public class IA extends Thread {
 
                 father[depth].score = chooseBestChildScore(max, values[depth]);
 
-                while(father[depth] != node.father){
+                while (father[depth] != node.father) {
                     max = increaseDepth(max);
                 }
                 stack.addAll(node.child);
