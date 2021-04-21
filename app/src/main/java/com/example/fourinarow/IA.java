@@ -88,7 +88,7 @@ public class IA extends Thread {
     Man team;
     Node root;
 
-    final int treeDepth = 6; //Constant depth of the tree
+    final int treeDepth = 5; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -186,6 +186,7 @@ public class IA extends Thread {
         root.father = null;
         //updateDecisionTree(root, treeDepth);
 
+        //minmax(root, treeDepth, true);
         //minmax(root, treeDepth, true, -10000, 10000);
         iterativeMinmax(root, true);
 
@@ -359,9 +360,107 @@ public class IA extends Thread {
             } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
             else if (node.isLeaf() && father[depth] != node.father) {
 
+
+
+                while (father[depth] != node.father) {
+                    father[depth].score = chooseBestChildScore(max, values[depth]);
+                    max = increaseDepth(max);
+                }
+
+                //If it's a terminal node evaluate it
+                if(node.terminal) {
+                    node.score = evaluateNode(node);
+                    values[depth].add(node.score);
+                }else{ //If its not, generate a deeper tree
+                    generateTree(node, depth);
+                    //We add this node again in order to re-evaluate it
+                    stack.add(node);
+                }
+
+            } //Node is a son of the node before him
+            else if (!node.isLeaf() && father[depth] == node.father) {
+
+                stack.addAll(node.child);
+                max = decreaseDepth(max);
+                father[depth] = node;
+
+            }//Node is a uncle, granduncle, or higher up of the node before him
+            else {
+
                 father[depth].score = chooseBestChildScore(max, values[depth]);
 
                 while (father[depth] != node.father) {
+                    max = increaseDepth(max);
+                }
+                stack.addAll(node.child);
+                max = decreaseDepth(max);
+                father[depth] = node;
+            }
+
+        }
+    }
+
+    public void iterativeMinmaxAlphaBeta(Node root, boolean max) {
+        //Init variables
+        //Local indicator of the current level (or current depth)
+        depth = treeDepth + 1;
+        //Array of current father on each level
+        father = new Node[depth];
+        //Array of lists of values for each level
+        values = new ArrayList[depth];
+        //Prining variables
+        int alpha = -1000;
+        int beta = +1000;
+        int bestValue = 0;
+
+        for (int i = 0; i < depth; i++) {
+            father[i] = null;
+            values[i] = new ArrayList<Integer>();
+        }
+
+        depth--;
+        Node node;
+        Stack stack = new Stack();
+        stack.push(root);
+
+        while (!stack.empty()) {
+
+            node = (Node) stack.pop();
+
+            //Node is leaf and needs to be evaluated. This node is a brother or a son of the last one
+            if (node.isLeaf() && father[depth] == node.father) {
+                //If the depth is 0 or its a terminal node, we have arrived at the bottom of the tree
+                if(depth == 0 || node.terminal) {
+                    node.score = evaluateNode(node);
+                    values[depth].add(node.score);
+
+                    //pruning logic
+                    if(max){
+                        bestValue = Math.max(bestValue, node.score);
+                        alpha = Math.max(alpha, bestValue);
+                        if(beta < alpha){
+                            //prune
+                        }
+                    }else{
+                        bestValue = Math.min(bestValue, node.score);
+                        beta = Math.min(beta, bestValue);
+                        if(beta < alpha){
+                            //prune
+                        }
+                    }
+
+                }else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
+                {
+                    generateTree(node, depth);
+                    //We add this node again in order to re-evaluate it
+                    stack.add(node);
+                }
+
+            } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
+            else if (node.isLeaf() && father[depth] != node.father) {
+
+                while (father[depth] != node.father) {
+                    father[depth].score = bestValue;
                     max = increaseDepth(max);
                 }
 
