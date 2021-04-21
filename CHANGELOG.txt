@@ -17,9 +17,9 @@ TO DO
 			- v0.6: 31-03-21 Now, if all children are of equal score, choose the most middle column. (Much better)  
 			- v0.7: when the game is lost anyway it needs to still choose the "best" play. (I think its done)
 		+ 24-03-21 Alpha-beta pruning
-			- 13-04-21 Changed alpha-beta comparation from "<=" to "<" (to avoid prunning move that would end the game)
+			- 13-04-21 Changed alpha-beta comparation from "<=" to "<" (to avoid prunning moves that would end the game)
 		+ Recursive algorithms transformation to iterative algorithms.
-		
+		+ Complete parallelization of IA. We want the IA to think while the user thinks too to reduce waiting times. (Need to generate n-depth tree, with the root as a min-node, and, after the player's turnmove down the corresponding branch, resulting in a n-1-depth tree)
 	
 DONE
 	-Basic Mechanics

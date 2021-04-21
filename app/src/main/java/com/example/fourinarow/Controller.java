@@ -24,9 +24,9 @@ public class Controller extends Thread {
 
     @Override
     public void run() {
-        if(ia != null && ia.getState() != State.TERMINATED){
+        /*if(ia != null && ia.getState() != State.TERMINATED){
             ia.interrupt();
-        }
+        }*/
         System.out.println("Game start!");
         startGame();
         System.out.println("Game end");
@@ -92,8 +92,7 @@ public class Controller extends Thread {
     public void turnIA() {
         while (playingMan == manIA) {
             try {
-                this.ia.run();
-                ia.join();
+                this.ia.play();
             }catch(Exception e){
                 System.err.println(e.getMessage());
             }
@@ -132,6 +131,12 @@ public class Controller extends Thread {
 
     public void playerTryPlayMan(int col) throws ColumnFullException{
         if(devmode || playingMan == manPlayer){
+            playMan(col);
+        }
+    }
+
+    public void IATryPlayMan(int col) throws ColumnFullException{
+        if(!devmode && playingMan == manIA){
             playMan(col);
         }
     }

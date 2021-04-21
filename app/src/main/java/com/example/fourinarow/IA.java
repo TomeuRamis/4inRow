@@ -2,26 +2,29 @@ package com.example.fourinarow;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Stack;
 
-public class IA extends Thread{
+public class IA extends Thread {
 
     public class Node {
-        Board board = null;
 
+        Board board = null;
 
         int score = 0;
         int column;
         boolean terminal = false;
         Man win = Man.EMPTY;
+        Node father = null;
         ArrayList<Node> child = new ArrayList<Node>();
 
         public Node(Board b) {
             this.board = b;
         }
 
-        public Node(Board b, int c) {
+        public Node(Board b, int c, Node father) {
             this.board = b;
             this.column = c;
+            this.father = father;
         }
 
         public Node(int val) {
@@ -61,17 +64,22 @@ public class IA extends Thread{
                     try {
                         b = (Board) this.board.clone();
                         b.playMan(i, m);
-                        node = new Node(b, i);
+                        node = new Node(b, i, this);
                     } catch (ColumnFullException e) { //If the column is full, try the next one
                         continue;
                     } catch (GameOverException e) { //If the game ends we mark the node as terminal and save who made the winning move
-                        node = new Node(b, i);
+                        node = new Node(b, i, this);
                         node.terminal = true;
                         node.win = m;
                     }
                     this.child.add(node);
                 }
             }
+        }
+
+
+        public boolean isLeaf() {
+            return this.child.isEmpty();
         }
     }
 
@@ -80,7 +88,7 @@ public class IA extends Thread{
     Man team;
     Node root;
 
-    final int treeDepth = 5; //Constant depth of the tree
+    final int treeDepth = 2; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -91,6 +99,13 @@ public class IA extends Thread{
     final int BLOCK2 = 8;
     final int BLOCK1 = 1;
     final int BLOCK0 = 0;
+    //Variables for iterative minmax
+    //Array of current father on each level
+    Node[] father;
+    //Array of lists of values for each level
+    ArrayList<Integer>[] values;
+    //Local indicator of the current level (or current depth)
+    int depth;
 
     public IA(Board board, Controller control, Man m) {
         this.board = board;
@@ -114,7 +129,7 @@ public class IA extends Thread{
     }
 
     /*
-    This method is ment to update the root node after the player places his man.
+    This method is meant to update the root node after the player places his man.
     If the node tree has been correctly generated, the root node will have a child that "predicted" the move of the player.
      */
     public Node updateRootBoard(Node root, Board board) {
@@ -140,7 +155,7 @@ public class IA extends Thread{
      */
     public void updateDecisionTree(Node root, int depth) {
         if (depth != 0) {
-            if (root.child.isEmpty()) {
+            if (root.isLeaf()) {
                 generateTree(root, depth);
             } else {
                 Iterator<Node> iterator = root.child.iterator();
@@ -151,21 +166,23 @@ public class IA extends Thread{
         }
     }
 
+
     @Override
-    public void run(){
-        play();
+    public void run() {
     }
 
     /*
     Each turn we generate the decision tree, run the minmax algorithm and look to the childs of root
     to fins the best play possible.
      */
-    public void play(){
+    public void play() {
 
         root = updateRootBoard(root, board);
+        root.father = null;
         updateDecisionTree(root, treeDepth);
 
-        minmax(root, treeDepth, true, -10000, 10000);
+        //minmax(root, treeDepth, true, -10000, 10000);
+        iterativeMinmax(root, true);
 
         boolean equal = true;
         Node best = new Node(root.board);
@@ -187,7 +204,7 @@ public class IA extends Thread{
         at the middle.
          */
         if (equal) {
-            if(best.score == -100){
+            if (best.score == -100) {
                 System.err.println("I lost :(");
             }
             boolean found = false;
@@ -207,9 +224,9 @@ public class IA extends Thread{
         }
         this.root = best;
         try {
-            this.control.playMan(best.column);
+            control.IATryPlayMan(best.column);
         } catch (ColumnFullException e) {
-            System.out.println("OOPS, this shouldn't have happened");
+            System.err.println();
         }
     }
 
@@ -273,6 +290,95 @@ public class IA extends Thread{
         }
     }
 
+    public boolean increaseDepth(boolean max) {
+        values[this.depth] = new ArrayList<Integer>();
+        depth++;
+        return !max;
+    }
+
+    public boolean decreaseDepth(boolean max) {
+        depth--;
+        return !max;
+    }
+
+    public int chooseBestChildScore(boolean max, ArrayList<Integer> values) {
+        int i = 0;
+        int score = values.get(i++);
+        while (i < values.size() ) {
+            if (max) {
+                if (score < values.get(i)) score = values.get(i);
+            } else {
+                if (score > values.get(i)) score = values.get(i);
+            }
+            i++;
+        }
+        return score;
+    }
+
+    public void iterativeMinmax(Node root, boolean max) {
+        //Init variables
+        //Local indicator of the current level (or current depth)
+        depth = treeDepth+1;
+        //Array of current father on each level
+        father = new Node[depth];
+        //Array of lists of values for each level
+        values = new ArrayList[depth];
+
+        for(int i = 0; i <depth; i++){
+            father[i] = null;
+            values[i] = new ArrayList<Integer>();
+        }
+
+        Node node;
+        depth--;
+        Stack stack = new Stack();
+        stack.push(root);
+
+        while (!stack.empty()) {
+
+            node = (Node) stack.pop();
+
+            //Node is leaf and needs to be evaluated. This node is a brother or a son of the last one
+            if (node.isLeaf() && father[depth] == node.father) {
+
+                node.score = evaluateNode(node);
+                values[depth].add(node.score);
+
+            } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
+            else if (node.isLeaf() && father[depth] != node.father) {
+
+                father[depth].score = chooseBestChildScore(max, values[depth]);
+
+                while (father[depth] != node.father) {
+                    max = increaseDepth(max);
+                }
+                node.score = evaluateNode(node);
+                values[depth].add(node.score);
+
+            } //Node is a son of the node before him
+            else if (!node.isLeaf() && father[depth] == node.father) {
+
+                stack.addAll(node.child);
+                max = decreaseDepth(max);
+                father[depth] = node;
+
+            }//Node is a uncle, granduncle, or higher up of the node before him
+            else {
+
+                father[depth].score = chooseBestChildScore(max, values[depth]);
+
+                while(father[depth] != node.father){
+                    max = increaseDepth(max);
+                }
+                stack.addAll(node.child);
+                max = decreaseDepth(max);
+                father[depth] = node;
+            }
+
+        }
+    }
+
+
     public int evaluateNode(Node node) {
         int value = 0;
 
@@ -280,12 +386,12 @@ public class IA extends Thread{
         switch (node.win) {
             case BLACK:
             case WHITE:
-                    value += WIN; //Win of either team. 
+                value += WIN; //Win of either team.
                 break;
             case EMPTY:
                 if (tie(node.board)) { //TIE
                     value += TIE;
-                }  else{
+                } else {
                     value += UNFINISHED;
                 }
                 break;
