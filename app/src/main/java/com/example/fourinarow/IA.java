@@ -88,7 +88,7 @@ public class IA extends Thread {
     Man team;
     Node root;
 
-    final int treeDepth = 2; //Constant depth of the tree
+    final int treeDepth = 6; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -113,7 +113,7 @@ public class IA extends Thread {
         this.team = m;
         Board b = (Board) board.clone();
         root = new Node(b);
-        generateTree(root, treeDepth);
+        generateTree(root, treeDepth-1);
     }
 
     /*
@@ -123,7 +123,7 @@ public class IA extends Thread {
         root.child = new ArrayList<Node>();
         root.generateChildren();
         Iterator<Node> iterator = root.child.iterator();
-        while (iterator.hasNext() && depth != 0) {
+        while (iterator.hasNext() && depth > 0) {
             generateTree(iterator.next(), depth - 1);
         }
     }
@@ -143,7 +143,7 @@ public class IA extends Thread {
         }
         if (!foundNewState) {
             newRoot = new Node(this.board);
-            generateTree(newRoot, treeDepth);
+            generateTree(newRoot, treeDepth-1);
         }
         return newRoot;
     }
@@ -151,12 +151,12 @@ public class IA extends Thread {
     /*
     this method should go over the entire tree, generating all missing children in order to keep it at a certain length.
     For example, if we want the tree to always be 8 nodes in depth, this method will check if
-    this is the case. And if it fins that it is not, it will call "generateTree" to fill in the missing nodes.
+    this is the case. And if it finds that it is not, it will call "generateTree" to fill in the missing nodes.
      */
     public void updateDecisionTree(Node root, int depth) {
         if (depth != 0) {
-            if (root.isLeaf()) {
-                generateTree(root, depth);
+            if (root.isLeaf() && !root.terminal) {
+                generateTree(root, depth-1);
             } else {
                 Iterator<Node> iterator = root.child.iterator();
                 while (iterator.hasNext()) {
@@ -329,8 +329,8 @@ public class IA extends Thread {
             values[i] = new ArrayList<Integer>();
         }
 
-        Node node;
         depth--;
+        Node node;
         Stack stack = new Stack();
         stack.push(root);
 
