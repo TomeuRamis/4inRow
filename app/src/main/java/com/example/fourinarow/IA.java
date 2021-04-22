@@ -361,7 +361,6 @@ public class IA extends Thread {
             else if (node.isLeaf() && father[depth] != node.father) {
 
 
-
                 while (father[depth] != node.father) {
                     father[depth].score = chooseBestChildScore(max, values[depth]);
                     max = increaseDepth(max);
@@ -411,7 +410,7 @@ public class IA extends Thread {
         //Prining variables
         int alpha = -1000;
         int beta = +1000;
-        int bestValue = 0;
+        int bestValue = -1000;
 
         for (int i = 0; i < depth; i++) {
             father[i] = null;
@@ -460,14 +459,41 @@ public class IA extends Thread {
             else if (node.isLeaf() && father[depth] != node.father) {
 
                 while (father[depth] != node.father) {
-                    father[depth].score = bestValue;
+                    father[depth].score = chooseBestChildScore(max, values[depth]);;
                     max = increaseDepth(max);
+                    if(max && beta > alpha){
+                        alpha = beta;
+                    }else if( !max && alpha < beta){
+                        beta = alpha;
+                    }
+                }
+                if(max){
+                    beta = 1000;
+                    bestValue = -1000;
+                }else{
+                    alpha = -1000;
+                    bestValue = 1000;
                 }
 
                 //If it's a terminal node evaluate it
                 if(node.terminal) {
                     node.score = evaluateNode(node);
                     values[depth].add(node.score);
+
+                    //pruning logic
+                    if(max){
+                        bestValue = Math.max(bestValue, node.score);
+                        alpha = Math.max(alpha, bestValue);
+                        if(beta < alpha){
+                            //prune
+                        }
+                    }else{
+                        bestValue = Math.min(bestValue, node.score);
+                        beta = Math.min(beta, bestValue);
+                        if(beta < alpha){
+                            //prune
+                        }
+                    }
                 }else{ //If its not, generate a deeper tree
                     generateTree(node, depth);
                     //We add this node again in order to re-evaluate it
@@ -484,11 +510,23 @@ public class IA extends Thread {
             }//Node is a uncle, granduncle, or higher up of the node before him
             else {
 
-                father[depth].score = chooseBestChildScore(max, values[depth]);
-
                 while (father[depth] != node.father) {
+                    father[depth].score = chooseBestChildScore(max, values[depth]);;
                     max = increaseDepth(max);
+                    if(max && beta > alpha){
+                        alpha = beta;
+                    }else if( !max && alpha < beta){
+                        beta = alpha;
+                    }
                 }
+                if(max){
+                    beta = 1000;
+                    bestValue = -1000;
+                }else{
+                    alpha = -1000;
+                    bestValue = 1000;
+                }
+
                 stack.addAll(node.child);
                 max = decreaseDepth(max);
                 father[depth] = node;
