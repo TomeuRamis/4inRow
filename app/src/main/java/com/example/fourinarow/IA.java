@@ -88,7 +88,7 @@ public class IA extends Thread {
     Man team;
     Node root;
 
-    final int treeDepth = 5; //Constant depth of the tree
+    final int treeDepth = 6; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -182,13 +182,26 @@ public class IA extends Thread {
      */
     public void play() {
 
+        double time = System.nanoTime();
         root = updateRootBoard(root, board);
+        System.out.println("update board: "+ Double.toString(System.nanoTime()-time));
         root.father = null;
-        //updateDecisionTree(root, treeDepth);
+        time = System.nanoTime();
+        updateDecisionTree(root, treeDepth);
+        System.out.println("update decision tree: "+ Double.toString(System.nanoTime()-time));
 
-        //minmax(root, treeDepth, true);
-        //minmax(root, treeDepth, true, -10000, 10000);
+        time = System.nanoTime();
+        minmax(root, treeDepth, true);
+        System.out.println("minmax: "+ Double.toString(System.nanoTime()-time));
+        time = System.nanoTime();
+        minmax(root, treeDepth, true, -10000, 10000);
+        System.out.println("minmax with pruning: "+ Double.toString(System.nanoTime()-time));
+        time = System.nanoTime();
         iterativeMinmax(root, true);
+        System.out.println("iterative minmax: "+ Double.toString(System.nanoTime()-time));
+        time = System.nanoTime();
+         iterativeMinmaxAlphaBeta(root, true);
+        System.out.println("iterative minmax with \"pruning\": "+ Double.toString(System.nanoTime()-time));
 
         boolean equal = true;
         Node best = new Node(root.board);
@@ -264,7 +277,6 @@ public class IA extends Thread {
 
     public int minmax(Node node, int depth, boolean max, int alpha, int beta) {
         if (depth == 0 || node.terminal) {
-            System.err.println("NOT FROZEN");
             return evaluateNode(node);
         }
 
@@ -360,10 +372,12 @@ public class IA extends Thread {
             } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
             else if (node.isLeaf() && father[depth] != node.father) {
 
-
+                int score;
                 while (father[depth] != node.father) {
-                    father[depth].score = chooseBestChildScore(max, values[depth]);
+                    score = chooseBestChildScore(max, values[depth]);
+                    father[depth].score = score;
                     max = increaseDepth(max);
+                    values[depth].add(score);
                 }
 
                 //If it's a terminal node evaluate it
@@ -410,7 +424,6 @@ public class IA extends Thread {
         //Prining variables
         int alpha = -1000;
         int beta = +1000;
-        int bestValue = -1000;
 
         for (int i = 0; i < depth; i++) {
             father[i] = null;
@@ -422,7 +435,7 @@ public class IA extends Thread {
         Stack stack = new Stack();
         stack.push(root);
 
-        while (!stack.empty()) {
+         while (!stack.empty()) {
 
             node = (Node) stack.pop();
 
@@ -435,17 +448,13 @@ public class IA extends Thread {
 
                     //pruning logic
                     if(max){
-                        bestValue = Math.max(bestValue, node.score);
-                        alpha = Math.max(alpha, bestValue);
-                        if(beta < alpha){
-                            //prune
-                        }
+                        alpha = Math.max(alpha, node.score);
                     }else{
-                        bestValue = Math.min(bestValue, node.score);
-                        beta = Math.min(beta, bestValue);
-                        if(beta < alpha){
-                            //prune
-                        }
+                        beta = Math.min(beta, node.score);
+                    }
+                    if(beta < alpha){
+                        //prune
+                        stack = prune(stack, father[depth]);
                     }
 
                 }else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
@@ -458,9 +467,13 @@ public class IA extends Thread {
             } //Node is leaf but it is not on the same depth, we need to find the current depth of this node first. This node is a uncle, granduncle or higher up of the las node.
             else if (node.isLeaf() && father[depth] != node.father) {
 
+                int score;
                 while (father[depth] != node.father) {
-                    father[depth].score = chooseBestChildScore(max, values[depth]);;
+                    score = chooseBestChildScore(max, values[depth]);
+                    father[depth].score = score;
                     max = increaseDepth(max);
+                    values[depth].add(score);
+
                     if(max && beta > alpha){
                         alpha = beta;
                     }else if( !max && alpha < beta){
@@ -469,10 +482,8 @@ public class IA extends Thread {
                 }
                 if(max){
                     beta = 1000;
-                    bestValue = -1000;
                 }else{
                     alpha = -1000;
-                    bestValue = 1000;
                 }
 
                 //If it's a terminal node evaluate it
@@ -482,17 +493,13 @@ public class IA extends Thread {
 
                     //pruning logic
                     if(max){
-                        bestValue = Math.max(bestValue, node.score);
-                        alpha = Math.max(alpha, bestValue);
-                        if(beta < alpha){
-                            //prune
-                        }
+                        alpha = Math.max(alpha, node.score);
                     }else{
-                        bestValue = Math.min(bestValue, node.score);
-                        beta = Math.min(beta, bestValue);
-                        if(beta < alpha){
-                            //prune
-                        }
+                        beta = Math.min(beta, node.score);
+                    }
+                    if(beta < alpha){
+                        //prune
+                        stack = prune(stack, father[depth]);
                     }
                 }else{ //If its not, generate a deeper tree
                     generateTree(node, depth);
@@ -510,9 +517,13 @@ public class IA extends Thread {
             }//Node is a uncle, granduncle, or higher up of the node before him
             else {
 
+                int score;
                 while (father[depth] != node.father) {
-                    father[depth].score = chooseBestChildScore(max, values[depth]);;
+                    score = chooseBestChildScore(max, values[depth]);
+                    father[depth].score = score;
                     max = increaseDepth(max);
+                    values[depth].add(score);
+
                     if(max && beta > alpha){
                         alpha = beta;
                     }else if( !max && alpha < beta){
@@ -521,10 +532,8 @@ public class IA extends Thread {
                 }
                 if(max){
                     beta = 1000;
-                    bestValue = -1000;
                 }else{
                     alpha = -1000;
-                    bestValue = 1000;
                 }
 
                 stack.addAll(node.child);
@@ -535,6 +544,15 @@ public class IA extends Thread {
         }
     }
 
+    public Stack prune(Stack stack, Node father){
+        Node node = (Node) stack.peek();
+        while(node.father == father){
+            stack.pop();
+            node = (Node) stack.peek();
+        }
+
+        return stack;
+    }
 
     public int evaluateNode(Node node) {
         int value = 0;
