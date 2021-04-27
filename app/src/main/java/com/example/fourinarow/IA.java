@@ -182,26 +182,26 @@ public class IA extends Thread {
      */
     public void play() {
 
-        double time = System.nanoTime();
+        //double time = System.nanoTime();
         root = updateRootBoard(root, board);
-        System.out.println("update board: "+ Double.toString(System.nanoTime()-time));
+        //System.out.println("update board: "+ Double.toString(System.nanoTime()-time));
         root.father = null;
-        time = System.nanoTime();
+        //time = System.nanoTime();
         updateDecisionTree(root, treeDepth);
-        System.out.println("update decision tree: "+ Double.toString(System.nanoTime()-time));
+        //System.out.println("update decision tree: "+ Double.toString(System.nanoTime()-time));
 
-        time = System.nanoTime();
-        minmax(root, treeDepth, true);
-        System.out.println("minmax: "+ Double.toString(System.nanoTime()-time));
-        time = System.nanoTime();
+        //time = System.nanoTime();
+        //minmax(root, treeDepth, true);
+        //System.out.println("minmax: "+ Double.toString(System.nanoTime()-time));
+        //time = System.nanoTime();
         minmax(root, treeDepth, true, -10000, 10000);
-        System.out.println("minmax with pruning: "+ Double.toString(System.nanoTime()-time));
-        time = System.nanoTime();
-        iterativeMinmax(root, true);
-        System.out.println("iterative minmax: "+ Double.toString(System.nanoTime()-time));
-        time = System.nanoTime();
-         iterativeMinmaxAlphaBeta(root, true);
-        System.out.println("iterative minmax with \"pruning\": "+ Double.toString(System.nanoTime()-time));
+        //System.out.println("minmax with pruning: "+ Double.toString(System.nanoTime()-time));
+        //time = System.nanoTime();
+        //iterativeMinmax(root, true);
+        //System.out.println("iterative minmax: "+ Double.toString(System.nanoTime()-time));
+        //time = System.nanoTime();
+        //iterativeMinmaxAlphaBeta(root, true);
+        //System.out.println("iterative minmax with \"pruning\": "+ Double.toString(System.nanoTime()-time));
 
         boolean equal = true;
         Node best = new Node(root.board);

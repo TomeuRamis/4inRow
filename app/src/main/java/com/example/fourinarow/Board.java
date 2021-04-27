@@ -97,8 +97,8 @@ public class Board {
         }
     }
 
-    public Man getSquare(int x, int y) {
-        return grid[x][y].getMan();
+    public Man getSquare(int row, int col) {
+        return grid[row][col].getMan();
     }
 
     public Man getTopMan(int y) {

@@ -4,7 +4,7 @@ public class Controller extends Thread {
 
     Board board;
     MainActivity main;
-
+    Boolean loading = true;
     Boolean devmode = false;
     int turn = 0;
     Boolean gameOver = false;
@@ -36,6 +36,10 @@ public class Controller extends Thread {
         main.updateTextViewBoard(board.toString());
         assignTeams();
         ia = new IA(this.board, this, this.manIA);
+        //main.doneLoad();
+
+        loading  = false;
+
         gameLoop();
 
         main.updateTextViewBoard(board.toString());
@@ -143,5 +147,11 @@ public class Controller extends Thread {
 
     public int getWidth() {
         return this.board.width;
+    }
+    public int getHeight() {
+        return this.board.height;
+    }
+    public Man getSquare(int col, int row){
+        return board.getSquare(row, col);
     }
 }

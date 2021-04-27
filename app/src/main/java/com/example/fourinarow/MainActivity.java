@@ -1,13 +1,18 @@
 package com.example.fourinarow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Constraints;
 
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -16,14 +21,17 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
 
     int column = 0;
+    //boolean loading = true;
 
     private Controller control;
 
-    private ImageView backgroundLoading;
-    private ProgressBar spinner;
+   // private ImageView backgroundLoading;
+    //private ProgressBar spinner;
     private TextView tv;
     private TextView tvcol;
     private TextView tvstate;
+
+    private BoardView boardView;
 
     private Button bplacen;
 
@@ -33,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        backgroundLoading = (ImageView) findViewById(R.id.imageViewBackgroundLoading);
-        spinner = (ProgressBar)findViewById(R.id.progressBar);
-        backgroundLoading.setVisibility(View.VISIBLE);
-        spinner.setVisibility(View.VISIBLE);
+        //backgroundLoading = (ImageView) findViewById(R.id.imageViewBackgroundLoading);
+        //spinner = (ProgressBar)findViewById(R.id.progressBar);
+        //backgroundLoading.setVisibility(View.VISIBLE);
+        //spinner.setVisibility(View.VISIBLE);
 
         tv = (TextView) findViewById(R.id.textView);
         tv.setText("hola");
@@ -47,16 +55,19 @@ public class MainActivity extends AppCompatActivity {
 
         bplacen = (Button) findViewById(R.id.buttonPlace);
 
+        boardView = new BoardView(this);
+        boardView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+        startController();
+
+        //waitLoad();
+    }
+
+    public void startController(){
         control = new Controller(this, 7, 6);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        spinner.setVisibility(View.GONE);
-        fadeOutAndHideImage(backgroundLoading);
         control.start();
     }
 
@@ -121,6 +132,24 @@ public class MainActivity extends AppCompatActivity {
     public void updateTextViewBoard(String str) {
         tv.setText(str);
     }
+
+
+
+//    public void doneLoad(){
+//        this.loading = false;
+//    }
+//
+//    public void waitLoad(){
+//        while(loading) {
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        fadeOutAndHideImage(backgroundLoading);
+//        spinner.setVisibility(View.GONE);
+//    }
 
     private void fadeOutAndHideImage(final ImageView img)
     {
