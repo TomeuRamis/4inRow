@@ -4,7 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -12,19 +17,27 @@ public class MainActivity extends AppCompatActivity {
 
     int column = 0;
 
-    Controller control;
+    private Controller control;
 
-    TextView tv;
-    TextView tvcol;
-    TextView tvstate;
+    private ImageView backgroundLoading;
+    private ProgressBar spinner;
+    private TextView tv;
+    private TextView tvcol;
+    private TextView tvstate;
 
-    Button bplacen;
+    private Button bplacen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        backgroundLoading = (ImageView) findViewById(R.id.imageViewBackgroundLoading);
+        spinner = (ProgressBar)findViewById(R.id.progressBar);
+        backgroundLoading.setVisibility(View.VISIBLE);
+        spinner.setVisibility(View.VISIBLE);
+
         tv = (TextView) findViewById(R.id.textView);
         tv.setText("hola");
         tvcol = (TextView) findViewById(R.id.textViewColumnIndicator);
@@ -36,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
 
         control = new Controller(this, 7, 6);
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        spinner.setVisibility(View.GONE);
+        fadeOutAndHideImage(backgroundLoading);
         control.start();
     }
 
@@ -99,5 +120,24 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateTextViewBoard(String str) {
         tv.setText(str);
+    }
+
+    private void fadeOutAndHideImage(final ImageView img)
+    {
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setDuration(1000);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener()
+        {
+            public void onAnimationEnd(Animation animation)
+            {
+                img.setVisibility(View.GONE);
+            }
+            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationStart(Animation animation) {}
+        });
+
+        img.startAnimation(fadeOut);
     }
 }
