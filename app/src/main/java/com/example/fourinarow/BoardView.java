@@ -1,15 +1,19 @@
 package com.example.fourinarow;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Build;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.RequiresApi;
 
-public class BoardView extends ImageView {
+public class BoardView extends View {
 
     Paint paint;
 
@@ -38,7 +42,8 @@ public class BoardView extends ImageView {
     protected void onDraw(Canvas canvas){
         super .onDraw(canvas);
         paint.setColor(Color.BLACK);
-        canvas.drawOval(width, height, width, height, paint);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.red_man);
+        canvas.drawBitmap(bitmap, 0,0,paint);
     }
 
 }
