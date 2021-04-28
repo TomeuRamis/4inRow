@@ -37,6 +37,7 @@ public class BoardView extends View {
 
     }
 
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onDraw(Canvas canvas){
