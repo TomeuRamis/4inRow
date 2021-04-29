@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvcol;
     private TextView tvstate;
 
-    private BoardView boardView;
-
     private Button bplacen;
 
     @Override
@@ -54,12 +52,6 @@ public class MainActivity extends AppCompatActivity {
         tvstate.setText("Begin playing");
 
         bplacen = (Button) findViewById(R.id.buttonPlace);
-
-        boardView = new BoardView(this);
-        boardView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
 
         startController();
 
