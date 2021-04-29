@@ -88,7 +88,7 @@ public class IA extends Thread {
     Man team;
     Node root;
 
-    final int treeDepth = 6; //Constant depth of the tree
+    final int treeDepth = 4; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
