@@ -6,9 +6,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.SurfaceHolder;
 
-public class Controller{
+import androidx.annotation.RequiresApi;
+
+public class Controller {
 
     Board board;
     MainActivity main;
@@ -35,8 +38,8 @@ public class Controller{
     // Dimensions of the ideal screen, to fit any other resolution
     private int modelViewX = 1583;
     private int modelViewY = 1080;
-    private int modelCenterX = modelViewX/2;
-    private int modelCenterY = modelViewY/2;
+    private int modelCenterX = modelViewX / 2;
+    private int modelCenterY = modelViewY / 2;
 
     // Drawing Ratio for this screen
     private float ratioH = 1;
@@ -45,10 +48,10 @@ public class Controller{
 
     private Paint paint;
     private Point center;
-    private Image imatge;
+    private Image imatge, blackMan, whiteMan;
     private Button helpButton;
 
-    private int posX=0, posY=0;
+    private int boardx1, boardx2, boardy1, boardy2;
 
     public Controller(Context context, GameView m, int width, int height, int screenWidth, int screenHeight) {
         board = new Board(width, height);
@@ -62,32 +65,34 @@ public class Controller{
         this.screenHeight = screenHeight;
 
         // Ratio to fit the modelView resolution to this screen. For fixed screen drawing or writing
-        float ratio1 = modelViewX/(float) screenWidth;
-        float ratio2 = modelViewY/(float) screenHeight;
+        float ratio1 = modelViewX / (float) screenWidth;
+        float ratio2 = modelViewY / (float) screenHeight;
 
-        center = new Point(screenWidth/2, screenHeight/2);
+        center = new Point(screenWidth / 2, screenHeight / 2);
 
-        ratioH = 1/ratio1;
-        ratioV = 1/ratio2;
+        ratioH = 1 / ratio1;
+        ratioV = 1 / ratio2;
 
-        imatge = new Image(m, R.drawable.red_man);
+        blackMan = new Image(m, R.drawable.red_man);
+        whiteMan = new Image(m, R.drawable.yellow_man);
         helpButton = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
+
+        boardx1 = screenWidth / 15;
+        boardx2 = boardx1 * 14;
+        boardy1 = screenHeight / 4;
+        boardy2 = boardy1 * 3;
 
         initGame();
     }
 
-    public void initGame()
-    {
+    public void initGame() {
         // inicialitzacions
         assignTeams();
         ia = new IA(this.board, this, this.manIA);
         //main.doneLoad();
-
-        loading  = false;
     }
 
-    public void update(long fps)
-    {
+    public void update(long fps) {
         if (devmode) {
             turnPlayer();
         } else {
@@ -101,8 +106,8 @@ public class Controller{
         }
     }
 
-    public void draw(SurfaceHolder holder)
-    {
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void draw(SurfaceHolder holder) {
 
         if (holder.getSurface().isValid()) {
             //First we lock the area of memory we will be drawing to
@@ -113,46 +118,60 @@ public class Controller{
 
             // Unlock and draw the scene
             paint = new Paint();
-            paint.setColor(Color.argb(255, 0,0,128));
+            paint.setColor(Color.argb(255, 0, 0, 128));
             paint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(0,100,screenWidth,screenHeight,paint);
+            canvas.drawRoundRect(boardx1, boardy1, boardx2, boardy2, 50, 50, paint);
 
             paint.setColor(Color.argb(255, 135, 206, 230));
-            paint.setStyle(Paint.Style.FILL);
-            for(int i = 0; i < board.width; i++) {
-                canvas.drawCircle((screenWidth/board.width)*i, screenHeight/board.height, 50, paint);
+            //paint.setStyle(Paint.Style.FILL);
+            int columnSpacing = (boardx2 - boardx1) / board.width;
+            int rowSpacing = (boardy2 - boardy1) / board.height;
+            for (int i = 0; i < board.width; i++) {
+                for (int j = board.height-1; j >= 0 ; j--) {
+                    canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height-j-1) + rowSpacing / 2, 50, paint);
+                    if (board.getSquare(j, i) != Man.EMPTY) {
+                        if (board.getSquare(j, i) == Man.BLACK) {
+                            blackMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height-j-1)+this.toScreenY(18), 100, 100);
+                        } else {
+                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height-j-1)+this.toScreenY(18), 100, 100);
+                        }
+                    }
+                }
             }
             //imatge.draw(canvas, 300,800,200,324);
             //helpButton.draw(canvas);
 
             long fps = myView.getFPS();
-            drawCenteredText(canvas, "FPS: "+fps, 80, Color.RED, 500);
+            drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
 
             holder.unlockCanvasAndPost(canvas);
         }
     }
 
 
-    public void handleInput(int x, int y)
-    {
+    public void handleInput(int x, int y) {
         Point p = new Point(fromScreenX(x), fromScreenY(y));
 
-        if (imatge.contains(p.x,p.y))
-        {
-            if (imatge.selected()) imatge.unselect();
-            else imatge.select();
+        if (x > boardx1 && x < boardx2 && y > boardy1 && y <boardy2) {
+            if(this.playingMan == this.manPlayer){
+                try {
+                    int columnSpacing = (boardx2 - boardx1) / board.width;
+                    playerTryPlayMan((x-boardx1) / columnSpacing);
+                } catch (ColumnFullException e) {
+                    System.err.println("x: "+x+", y: "+y);
+                }
+            }
         }
 
     }
-    public void handleStopInput(int x, int y)
-    {
+
+    public void handleStopInput(int x, int y) {
         if (helpButton.contains(x, y)) {
             helpButton.toggle();
         }
     }
 
-    public void drawCenteredText(Canvas canvas, String txt, int size, int color, int pos)
-    {
+    public void drawCenteredText(Canvas canvas, String txt, int size, int color, int pos) {
         Paint paintText = new Paint();
         //paintText.setTypeface(fontJoc);
         paintText.setTextSize(toScreenX(size));
@@ -167,21 +186,21 @@ public class Controller{
         int yPos = pos;
         canvas.drawText(txt, toScreenX(xPos), toScreenY(yPos), paintText);
     }
-    private int toScreenX(int in)
-    {
-        return (int)(in*ratioH);
+
+    private int toScreenX(int in) {
+        return (int) (in * ratioH);
     }
-    private int toScreenY(int in)
-    {
-        return (int)(in*ratioV);
+
+    private int toScreenY(int in) {
+        return (int) (in * ratioV);
     }
-    private int fromScreenX(int in)
-    {
-        return (int)(in/ratioH);
+
+    private int fromScreenX(int in) {
+        return (int) (in / ratioH);
     }
-    private int fromScreenY(int in)
-    {
-        return (int)(in/ratioV);
+
+    private int fromScreenY(int in) {
+        return (int) (in / ratioV);
     }
 
     public void run() {
@@ -199,7 +218,7 @@ public class Controller{
         ia = new IA(this.board, this, this.manIA);
         //main.doneLoad();
 
-        loading  = false;
+        loading = false;
 
         //main.updateTextViewBoard(board.toString());
     }
@@ -227,21 +246,21 @@ public class Controller{
 
     public void turnPlayer() {
         //while (devmode || playingMan == manPlayer) {
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //}
     }
 
     public void turnIA() {
         //while (playingMan == manIA) {
-            try {
-                //this.ia.play();
-            }catch(Exception e){
-                System.err.println(e.getMessage());
-            }
+        try {
+            this.ia.play();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         //}
     }
 
@@ -275,35 +294,36 @@ public class Controller{
         }
     }
 
-    public void playerTryPlayMan(int col) throws ColumnFullException{
-        if(devmode || playingMan == manPlayer){
+    public void playerTryPlayMan(int col) throws ColumnFullException {
+        if (devmode || playingMan == manPlayer) {
             playMan(col);
         }
     }
 
-    public void IATryPlayMan(int col) throws ColumnFullException{
-        if(!devmode && playingMan == manIA){
+    public void IATryPlayMan(int col) throws ColumnFullException {
+        if (!devmode && playingMan == manIA) {
             playMan(col);
         }
     }
 
-    public void setResume()
-    {
+    public void setResume() {
     }
-    public void saveStatus()
-    {
+
+    public void saveStatus() {
     }
-    public void recoverStatus()
-    {
+
+    public void recoverStatus() {
     }
 
     public int getWidth() {
         return this.board.width;
     }
+
     public int getHeight() {
         return this.board.height;
     }
-    public Man getSquare(int col, int row){
+
+    public Man getSquare(int col, int row) {
         return board.getSquare(row, col);
     }
 }

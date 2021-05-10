@@ -1,9 +1,12 @@
 package com.example.fourinarow;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.annotation.RequiresApi;
 
 public class GameView extends SurfaceView implements Runnable {
 
@@ -28,6 +31,7 @@ public class GameView extends SurfaceView implements Runnable {
         control = new Controller(context, this, 7, 6, screenWidth, screenHeight);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void run() {
         long msFrame = 1000 / fps;
