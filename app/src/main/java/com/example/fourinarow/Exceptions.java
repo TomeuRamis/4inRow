@@ -27,11 +27,19 @@ class GameOverException extends Exception {
 
     private String code;
     private Man man;
+    private int[][] inRow;
 
     public GameOverException(String code, String message, Man man) {
         super(message);
         this.setCode(code);
         this.man = man;
+    }
+
+    public GameOverException(String code, String message, Man man, int[][] inRow) {
+        super(message);
+        this.setCode(code);
+        this.man = man;
+        this.inRow = inRow;
     }
 
     public GameOverException(String code, String message, Throwable cause) {
@@ -50,4 +58,6 @@ class GameOverException extends Exception {
     public Man winner(){
         return man;
     }
+
+    public int[][] getInRow(){return this.inRow;}
 }

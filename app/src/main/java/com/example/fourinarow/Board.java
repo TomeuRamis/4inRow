@@ -40,44 +40,48 @@ public class Board {
     }
 
     public void checkGameOver(int col, int row, Man m) throws GameOverException {
+        int[][] inrow = new int[4][2];
         int inRow = 0;
 
         //Vertical
         for (int i = 0; i < height; i++) {
             if (grid[i][col].getMan() == m) {
-                inRow++;
+                inrow[inRow][0] = i;
+                inrow[inRow++][1] = col;
             } else {
                 inRow = 0;
             }
             //4 IN A ROW
             if (inRow == 4) {
-                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m);
+                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m, inrow);
             }
         }
         //Horizontal
         inRow = 0;
         for (int i = 0; i < width; i++) {
             if (grid[row][i].getMan() == m) {
-                inRow++;
+                inrow[inRow][0] = row;
+                inrow[inRow++][1] = i;
             } else {
                 inRow = 0;
             }
             //4 IN A ROW
             if (inRow == 4) {
-                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stoped.", m);
+                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m, inrow);
             }
         }
         //bottom left to top right
         inRow = 0;
         for (int i = -Math.min(row, col); i + row < height && i + col < width; i++) {
             if (grid[row + i][col + i].getMan() == m) {
-                inRow++;
+                inrow[inRow][0] = row + i;
+                inrow[inRow++][1] = col + i;
             } else {
                 inRow = 0;
             }
             //4 IN A ROW
             if (inRow == 4) {
-                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m);
+                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m, inrow);
             }
         }
 
@@ -86,13 +90,14 @@ public class Board {
         int aux = (height - 1) - row;
         for (int i = -Math.min(aux, col); row - i >= 0 && i + col < width; i++) {
             if (grid[row - i][col + i].getMan() == m) {
-                inRow++;
+                inrow[inRow][0] = row - i;
+                inrow[inRow++][1] = col + i;
             } else {
                 inRow = 0;
             }
             //4 IN A ROW
             if (inRow == 4) {
-                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m);
+                throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m, inrow);
             }
         }
     }
@@ -118,7 +123,7 @@ public class Board {
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     @Override

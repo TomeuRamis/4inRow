@@ -88,7 +88,7 @@ public class IA extends Thread {
     Man team;
     Node root;
 
-    final int treeDepth = 4; //Constant depth of the tree
+    final int treeDepth = 6; //Constant depth of the tree
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -184,24 +184,12 @@ public class IA extends Thread {
 
         //double time = System.nanoTime();
         root = updateRootBoard(root, board);
-        //System.out.println("update board: "+ Double.toString(System.nanoTime()-time));
         root.father = null;
         //time = System.nanoTime();
-        updateDecisionTree(root, treeDepth);
-        //System.out.println("update decision tree: "+ Double.toString(System.nanoTime()-time));
 
-        //time = System.nanoTime();
-        //minmax(root, treeDepth, true);
-        //System.out.println("minmax: "+ Double.toString(System.nanoTime()-time));
+        updateDecisionTree(root, depth);
         //time = System.nanoTime();
         minmax(root, treeDepth, true, -10000, 10000);
-        //System.out.println("minmax with pruning: "+ Double.toString(System.nanoTime()-time));
-        //time = System.nanoTime();
-        //iterativeMinmax(root, true);
-        //System.out.println("iterative minmax: "+ Double.toString(System.nanoTime()-time));
-        //time = System.nanoTime();
-        //iterativeMinmaxAlphaBeta(root, true);
-        //System.out.println("iterative minmax with \"pruning\": "+ Double.toString(System.nanoTime()-time));
 
         boolean equal = true;
         Node best = new Node(root.board);
@@ -276,6 +264,11 @@ public class IA extends Thread {
     }
 
     public int minmax(Node node, int depth, boolean max, int alpha, int beta) {
+        //If the three has not generated completly
+        if(node.child.isEmpty() && depth > 0 && !node.terminal){
+            updateDecisionTree(node, depth);
+        }
+        //If we have arrived at the maximum depth or to a leaf node
         if (depth == 0 || node.terminal) {
             return evaluateNode(node);
         }

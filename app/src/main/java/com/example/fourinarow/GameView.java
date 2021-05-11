@@ -40,7 +40,9 @@ public class GameView extends SurfaceView implements Runnable {
         while (running) {
             long startFrameTime = System.currentTimeMillis();
 
-            control.update(fps);
+            if(!control.gameOver) {
+                control.update(fps);
+            }
             control.draw(ourHolder);
 
             // Calculate the fps this frame
@@ -117,6 +119,7 @@ public class GameView extends SurfaceView implements Runnable {
                     control.handleStopInput(x, y);
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    control.handleInput(x, y);
                     break;
             }
         }

@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.view.SurfaceHolder;
 
@@ -28,6 +27,9 @@ public class Controller {
     Man manPlayer = null;
     Man manIA = null;
 
+    int[][] inRow;
+    Man winner;
+
     //private Typeface fontJoc;
     private Context context;
     private int screenWidth;
@@ -48,10 +50,14 @@ public class Controller {
 
     private Paint paint;
     private Point center;
-    private Image imatge, blackMan, whiteMan;
+    private Image imatge, blackMan, whiteMan, blankMan;
     private Button helpButton;
+    private int animation = 0;
+    private int animationIncrease = 1;
+    private final int animationMax = 10;
 
     private int boardx1, boardx2, boardy1, boardy2;
+    private int fingerPosX, FingerPosY;
 
     public Controller(Context context, GameView m, int width, int height, int screenWidth, int screenHeight) {
         board = new Board(width, height);
@@ -75,6 +81,7 @@ public class Controller {
 
         blackMan = new Image(m, R.drawable.red_man);
         whiteMan = new Image(m, R.drawable.yellow_man);
+        blankMan = new Image(m, R.drawable.white_man);
         helpButton = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
 
         boardx1 = screenWidth / 15;
@@ -127,16 +134,19 @@ public class Controller {
             int columnSpacing = (boardx2 - boardx1) / board.width;
             int rowSpacing = (boardy2 - boardy1) / board.height;
             for (int i = 0; i < board.width; i++) {
-                for (int j = board.height-1; j >= 0 ; j--) {
-                    canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height-j-1) + rowSpacing / 2, 50, paint);
+                for (int j = board.height - 1; j >= 0; j--) {
+                    canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
                     if (board.getSquare(j, i) != Man.EMPTY) {
                         if (board.getSquare(j, i) == Man.BLACK) {
-                            blackMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height-j-1)+this.toScreenY(18), 100, 100);
+                            blackMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height - j - 1) + this.toScreenY(18), 100, 100);
                         } else {
-                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height-j-1)+this.toScreenY(18), 100, 100);
+                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height - j - 1) + this.toScreenY(18), 100, 100);
                         }
                     }
                 }
+            }
+            if (fingerPosX != -1) {
+                blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + this.toScreenX(23), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + this.toScreenY(10), 100, 100, -10, 99);
             }
             //imatge.draw(canvas, 300,800,200,324);
             //helpButton.draw(canvas);
@@ -144,21 +154,45 @@ public class Controller {
             long fps = myView.getFPS();
             drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
 
+            if (gameOver) {
+                drawCenteredText(canvas, "GAME OVER", 80, Color.RED, 200);
+                for (int i = 0; i < this.inRow.length; i++) {
+                    if (winner == Man.BLACK) {
+                        blackMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation, 100);
+                    } else {
+                        whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation, 100);
+                    }
+                }
+            }
+
+            if(animation >= animationMax){
+                animationIncrease = -1;
+            }else if(animation <= -animationMax){
+                animationIncrease = 1;
+            }
+            animation = animation + animationIncrease;
+
+
             holder.unlockCanvasAndPost(canvas);
         }
     }
 
 
     public void handleInput(int x, int y) {
-        Point p = new Point(fromScreenX(x), fromScreenY(y));
+        //
+        if(gameOver){
 
-        if (x > boardx1 && x < boardx2 && y > boardy1 && y <boardy2) {
-            if(this.playingMan == this.manPlayer){
+        }
+
+        //Board
+        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2) {
+            if (this.playingMan == this.manPlayer) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
-                    playerTryPlayMan((x-boardx1) / columnSpacing);
-                } catch (ColumnFullException e) {
-                    System.err.println("x: "+x+", y: "+y);
+                    //playerTryPlayMan((x-boardx1) / columnSpacing);
+                    fingerPosX = (x - boardx1) / columnSpacing;
+                } catch (Exception e) {
+                    System.err.println("x: " + x + ", y: " + y);
                 }
             }
         }
@@ -166,8 +200,20 @@ public class Controller {
     }
 
     public void handleStopInput(int x, int y) {
-        if (helpButton.contains(x, y)) {
-            helpButton.toggle();
+        //Board
+        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2) {
+            if (this.playingMan == this.manPlayer) {
+                try {
+                    int columnSpacing = (boardx2 - boardx1) / board.width;
+                    playerTryPlayMan((x - boardx1) / columnSpacing);
+                    fingerPosX = -1;
+                    //fingerPosX = (x-boardx1) / columnSpacing;
+                } catch (ColumnFullException e) {
+                    System.err.println("x: " + x + ", y: " + y);
+                }
+            }
+        } else {
+            fingerPosX = -1;
         }
     }
 
@@ -182,8 +228,8 @@ public class Controller {
         paintText.setAlpha(200);
 
         int xPos = modelViewX / 2;
-        //int yPos = (int) (pos + ((paintText.descent() + paintText.ascent()))/4) ;
-        int yPos = pos;
+        int yPos = (int) (pos + ((paintText.descent() + paintText.ascent())) / 4);
+        //int yPos = pos;
         canvas.drawText(txt, toScreenX(xPos), toScreenY(yPos), paintText);
     }
 
@@ -259,7 +305,7 @@ public class Controller {
         try {
             this.ia.play();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();;
         }
         //}
     }
@@ -290,7 +336,9 @@ public class Controller {
             newTurn();
         } catch (GameOverException e) {
             gameOver = true;
-            newTurn();
+            this.winner = e.winner();
+            this.inRow = e.getInRow();
+            //newTurn();
         }
     }
 

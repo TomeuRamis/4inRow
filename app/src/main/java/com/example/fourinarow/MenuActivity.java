@@ -11,7 +11,10 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_menu);
+
+        //Image blackMan = new Image(m, R.drawable.red_man);
     }
 
     public void buttonStartPress(View view){
