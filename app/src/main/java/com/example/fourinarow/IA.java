@@ -6,87 +6,13 @@ import java.util.Stack;
 
 public class IA extends Thread {
 
-    public class Node {
-
-        Board board = null;
-
-        int score = 0;
-        int column;
-        boolean terminal = false;
-        Man win = Man.EMPTY;
-        Node father = null;
-        ArrayList<Node> child = new ArrayList<Node>();
-
-        public Node(Board b) {
-            this.board = b;
-        }
-
-        public Node(Board b, int c, Node father) {
-            this.board = b;
-            this.column = c;
-            this.father = father;
-        }
-
-        public Node(int val) {
-            this.score = val;
-        }
-
-        /*Compares this node against a second node. If max=true it will return the biggest, otherwise return the smallest*/
-        public Node compare(Node n, boolean max) {
-            if (max) {
-                if (this.score >= n.score) {
-                    return this;
-                } else {
-                    return n;
-                }
-            } else {
-                if (this.score <= n.score) {
-                    return this;
-                } else {
-                    return n;
-                }
-            }
-        }
-
-        public void generateChildren() {
-            Man m;
-            if (!this.terminal) {
-                //Study who is going to play next, black or white
-                if (board.mans % 2 == 0) {
-                    m = Man.BLACK;
-                } else {
-                    m = Man.WHITE;
-                }
-                //Generate all of the possible children (play one man on each column, if possible)
-                for (int i = 0; i < board.width; i++) {
-                    Board b = null;
-                    Node node = null;
-                    try {
-                        b = (Board) this.board.clone();
-                        b.playMan(i, m);
-                        node = new Node(b, i, this);
-                    } catch (ColumnFullException e) { //If the column is full, try the next one
-                        continue;
-                    } catch (GameOverException e) { //If the game ends we mark the node as terminal and save who made the winning move
-                        node = new Node(b, i, this);
-                        node.terminal = true;
-                        node.win = m;
-                    }
-                    this.child.add(node);
-                }
-            }
-        }
-
-
-        public boolean isLeaf() {
-            return this.child.isEmpty();
-        }
-    }
-
     Board board;
     Controller control;
     Man team;
     Node root;
+
+    boolean waiting = true;
+    boolean gameover = false;
 
     final int treeDepth = 6; //Constant depth of the tree
     //Node evaluation scores
@@ -174,6 +100,16 @@ public class IA extends Thread {
 
     @Override
     public void run() {
+        while(!gameover) {
+            while (waiting) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            this.play();
+        }
     }
 
     /*
@@ -235,6 +171,7 @@ public class IA extends Thread {
         } catch (ColumnFullException e) {
             System.err.println();
         }
+
     }
 
 
@@ -769,5 +706,15 @@ public class IA extends Thread {
     public boolean tie(Board board) {
         return board.mans == board.height * board.width;
     }
+
+    public void gameover(){
+        gameover = true;
+    }
+
+    public void setWaiting(boolean b){
+        this.waiting = b;
+    }
+
+    public boolean getWaiting(){ return this.waiting;}
 
 }

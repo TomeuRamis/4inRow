@@ -14,13 +14,11 @@ public class Controller {
 
     Board board;
     MainActivity main;
-    Boolean loading = true;
     Boolean devmode = false;
     int turn = 0;
     Boolean gameOver = false;
 
     IA ia;
-    Thread iaThread;
 
     Boolean blackPlays = true;
     Man playingMan = Man.BLACK;
@@ -52,9 +50,11 @@ public class Controller {
     private Point center;
     private Image imatge, blackMan, whiteMan, blankMan;
     private Button helpButton;
+    private boolean playAnimation = false;
+    private int colAnimation, rowAnimation;
     private int animation = 0;
     private int animationIncrease = 1;
-    private final int animationMax = 10;
+    private final int ANIMAX = 10;
 
     private int boardx1, boardx2, boardy1, boardy2;
     private int fingerPosX, FingerPosY;
@@ -96,6 +96,7 @@ public class Controller {
         // inicialitzacions
         assignTeams();
         ia = new IA(this.board, this, this.manIA);
+        ia.start();
         //main.doneLoad();
     }
 
@@ -106,7 +107,7 @@ public class Controller {
             if (playingMan == manPlayer) {
                 //main.updateTextViewState("Make a move!");
                 turnPlayer();
-            } else {
+            } else if(ia.getWaiting()){
                 //main.updateTextViewState("IA's turn. Wait.");
                 turnIA();
             }
@@ -125,10 +126,11 @@ public class Controller {
 
             // Unlock and draw the scene
             paint = new Paint();
+            //Draw board
             paint.setColor(Color.argb(255, 0, 0, 128));
             paint.setStyle(Paint.Style.FILL);
             canvas.drawRoundRect(boardx1, boardy1, boardx2, boardy2, 50, 50, paint);
-
+            
             paint.setColor(Color.argb(255, 135, 206, 230));
             //paint.setStyle(Paint.Style.FILL);
             int columnSpacing = (boardx2 - boardx1) / board.width;
@@ -148,8 +150,18 @@ public class Controller {
             if (fingerPosX != -1) {
                 blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + this.toScreenX(23), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + this.toScreenY(10), 100, 100, -10, 99);
             }
-            //imatge.draw(canvas, 300,800,200,324);
-            //helpButton.draw(canvas);
+
+            //Play man animation
+            if(playAnimation){
+                int factorAnim = (boardy2-colAnimation*rowSpacing-boardy1)/ANIMAX;
+                if (this.playingMan == Man.BLACK) {
+                    whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + factorAnim*animation + this.toScreenY(18), 100, 100, animation+10, 100);
+                } else {
+                    blackMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + rowSpacing * (board.height - colAnimation- 1) + this.toScreenY(18), 100, 100, animation+10, 100);
+                }
+            }
+
+
 
             long fps = myView.getFPS();
             drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
@@ -158,16 +170,19 @@ public class Controller {
                 drawCenteredText(canvas, "GAME OVER", 80, Color.RED, 200);
                 for (int i = 0; i < this.inRow.length; i++) {
                     if (winner == Man.BLACK) {
-                        blackMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation, 100);
+                        blackMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation+10, 100);
                     } else {
-                        whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation, 100);
+                        whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation+10, 100);
                     }
                 }
             }
 
-            if(animation >= animationMax){
+
+
+
+            if(animation >= ANIMAX){
                 animationIncrease = -1;
-            }else if(animation <= -animationMax){
+            }else if(animation <= -ANIMAX){
                 animationIncrease = 1;
             }
             animation = animation + animationIncrease;
@@ -249,25 +264,6 @@ public class Controller {
         return (int) (in / ratioV);
     }
 
-    public void run() {
-        /*if(ia != null && ia.getState() != State.TERMINATED){
-            ia.interrupt();
-        }*/
-        System.out.println("Game start!");
-        startGame();
-        System.out.println("Game end");
-    }
-
-    public void startGame() {
-        //main.updateTextViewBoard(board.toString());
-        assignTeams();
-        ia = new IA(this.board, this, this.manIA);
-        //main.doneLoad();
-
-        loading = false;
-
-        //main.updateTextViewBoard(board.toString());
-    }
 
     public void toggleDevMode() {
         if (!gameOver) {
@@ -303,8 +299,10 @@ public class Controller {
     public void turnIA() {
         //while (playingMan == manIA) {
         try {
-            this.ia.play();
-        } catch (Exception e) {
+            ia.setWaiting(false);
+        } catch(IllegalThreadStateException e){
+            e.printStackTrace();
+        }catch (Exception e) {
             e.printStackTrace();;
         }
         //}
@@ -330,12 +328,17 @@ public class Controller {
     /* Plays a man on a column.
     Throws ColumnFullException, so it has to be handled individually.
     Ends the game when GameOverException.*/
-    public void playMan(int col) throws ColumnFullException {
+    public void playMan(int col) throws ColumnFullException{
         try {
             board.playMan(col, playingMan);
+            animation = 0;
+            colAnimation = col;
+            rowAnimation = board.getTopPos(col);
+            playAnimation = true;
             newTurn();
         } catch (GameOverException e) {
             gameOver = true;
+            ia.gameover();
             this.winner = e.winner();
             this.inRow = e.getInRow();
             //newTurn();
@@ -351,6 +354,7 @@ public class Controller {
     public void IATryPlayMan(int col) throws ColumnFullException {
         if (!devmode && playingMan == manIA) {
             playMan(col);
+            ia.setWaiting(true);
         }
     }
 
