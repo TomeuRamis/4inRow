@@ -1,27 +1,26 @@
 package com.example.fourinarow;
 
 import android.graphics.Point;
+import android.sax.StartElementListener;
 
 public class Animation {
 
-    private Man man;
-    private int img;
-    private int frames;
-    private int currentFrame = 0;
+    private Image img;
     private int col;
     private int row;
+    private int state = 0;
+    private final int START = 5;
+    private final int FALL = 8;
+    private final int BOUNCE = 3;
+    private final int END = 3;
+    private int currentFrame = 0;
+    private int frames = START + FALL + BOUNCE + END;
     private boolean done = false;
 
-    public Animation(Man m, int c, int r) {
-        this.man = m;
-        if (man == Man.BLACK) {
-            img = R.drawable.red_man;
-        } else {
-            img = R.drawable.yellow_man;
-        }
+    public Animation(Image m, int c, int r) {
+        img = m;
         this.col = c;
         this.row = r;
-        frames = 10;
     }
 
     public int getRow() {
@@ -32,24 +31,47 @@ public class Animation {
         return col;
     }
 
-    public Man getMan() {
-        return man;
+    public Image getImage() {
+        return img;
     }
 
-    public void newFrame(){
-        if(!done){
+    public void newFrame() {
+        if (!done) {
             currentFrame++;
-            if(frames == currentFrame){
+            if (state == 3 && currentFrame > END ) {
                 done = true;
+            } else if (state == 2 && currentFrame > BOUNCE) {
+                state = 3;
+                currentFrame = 0;
+            } else if (state == 1 && currentFrame > FALL) {
+                state = 2;
+                currentFrame = 0;
+            } else if (state == 0 && currentFrame > START) {
+                state = 1;
+                currentFrame = 0;
             }
         }
     }
 
-    public boolean isDone(){
+    public boolean isDone() {
         return done;
     }
 
     public double getCompletionRatio() {
-        return currentFrame/frames;
+        switch (state) {
+            case 0:
+                return (double) currentFrame / START;
+            case 1:
+                return (double) currentFrame / FALL;
+            case 2:
+                return (double) currentFrame / BOUNCE;
+            case 3:
+                return (double) currentFrame / END;
+        }
+        return (double) currentFrame / frames;
+    }
+
+    public int getState() {
+        return state;
     }
 }

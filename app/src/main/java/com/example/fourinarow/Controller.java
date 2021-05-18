@@ -161,16 +161,32 @@ public class Controller {
                         animationQ.remove(0);
                         i--;
                     } else {
-                        double r = a.getCompletionRatio();
-                        if (a.getMan() == Man.BLACK) {
-                            blackMan.draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) ((a.getRow() * rowSpacing) * r) + toScreenX(35), 100, 100);
-                        } else {
-                            whiteMan.draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) ((a.getRow() * rowSpacing) * r) + toScreenX(35), 100, 100);
+                        double r;
+                        switch (a.getState()) {
+                            case 0:
+                                r = a.getCompletionRatio() * toScreenY(95);
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(-70), 100, 100);
+                                break;
+                            case 1:
+                                r = a.getCompletionRatio() * rowSpacing * (board.height - 1 - a.getRow());
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(35), 100, 100);
+                                break;
+                            case 2:
+                                r = a.getCompletionRatio() * -toScreenY(30);
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(35) + rowSpacing * (board.height - 1 - a.getRow()), 100, 100);
+                                break;
+                            case 3:
+                                r = a.getCompletionRatio() * toScreenY(35);
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) r + + toScreenY(0) + rowSpacing * (board.height - 1 - a.getRow()), 100, 100);
+                                break;
                         }
-                        a.newFrame();
+
+
                     }
+                    a.newFrame();
                 }
             }
+
             if (fingerPosX != -1) {
                 blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + toScreenX(35), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + toScreenY(35), 100, 100, -10, 99);
             }
@@ -351,7 +367,13 @@ public class Controller {
     public void playMan(int col) throws ColumnFullException {
         try {
             board.playMan(col, playingMan);
-            animationQ.add(new Animation(playingMan, col, board.getTopPos(col)));
+            if (playingMan == Man.BLACK) {
+                animationQ.add(new Animation(blackMan, col, board.getTopPos(col)));
+            } else {
+                animationQ.add(new Animation(whiteMan, col, board.getTopPos(col)));
+
+            }
+
             playAnimation = true;
             newTurn();
         } catch (GameOverException e) {
