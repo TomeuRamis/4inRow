@@ -10,6 +10,9 @@ import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Controller {
 
     Board board;
@@ -36,8 +39,8 @@ public class Controller {
     private GameView myView;
 
     // Dimensions of the ideal screen, to fit any other resolution
-    private int modelViewX = 1583;
-    private int modelViewY = 1080;
+    private int modelViewX = 1080;
+    private int modelViewY = 2060;
     private int modelCenterX = modelViewX / 2;
     private int modelCenterY = modelViewY / 2;
 
@@ -48,13 +51,15 @@ public class Controller {
 
     private Paint paint;
     private Point center;
-    private Image imatge, blackMan, whiteMan, blankMan;
+    private Image imatge, blackMan, whiteMan, blankMan, boardimg;
     private Button helpButton;
     private boolean playAnimation = false;
     private int colAnimation, rowAnimation;
     private int animation = 0;
     private int animationIncrease = 1;
     private final int ANIMAX = 10;
+    private Man animationMan;
+    private ArrayList<Animation> animationQ;
 
     private int boardx1, boardx2, boardy1, boardy2;
     private int fingerPosX, FingerPosY;
@@ -82,13 +87,15 @@ public class Controller {
         blackMan = new Image(m, R.drawable.red_man);
         whiteMan = new Image(m, R.drawable.yellow_man);
         blankMan = new Image(m, R.drawable.white_man);
+        boardimg = new Image(m, R.drawable.board);
         helpButton = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
         boardy1 = screenHeight / 4;
-        boardy2 = boardy1 * 3;
+        boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
 
+        animationQ = new ArrayList<Animation>();
         initGame();
     }
 
@@ -107,7 +114,7 @@ public class Controller {
             if (playingMan == manPlayer) {
                 //main.updateTextViewState("Make a move!");
                 turnPlayer();
-            } else if(ia.getWaiting()){
+            } else if (ia.getWaiting()) {
                 //main.updateTextViewState("IA's turn. Wait.");
                 turnIA();
             }
@@ -126,42 +133,62 @@ public class Controller {
 
             // Unlock and draw the scene
             paint = new Paint();
-            //Draw board
-            paint.setColor(Color.argb(255, 0, 0, 128));
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawRoundRect(boardx1, boardy1, boardx2, boardy2, 50, 50, paint);
-            
+
+
             paint.setColor(Color.argb(255, 135, 206, 230));
             //paint.setStyle(Paint.Style.FILL);
-            int columnSpacing = (boardx2 - boardx1) / board.width;
-            int rowSpacing = (boardy2 - boardy1) / board.height;
+            int columnSpacing = (int) (128 * (double) toScreenX(700) / 700);
+            int rowSpacing = (int) (127 * (double) toScreenY(600) / 600);
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
-                    canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
-                    if (board.getSquare(j, i) != Man.EMPTY) {
+                    //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
+                    if (board.getSquare(j, i) != Man.EMPTY && !inAnimationQ(j, i)) {
                         if (board.getSquare(j, i) == Man.BLACK) {
-                            blackMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height - j - 1) + this.toScreenY(18), 100, 100);
+                            blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(35), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(35), 100, 100);
                         } else {
-                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + this.toScreenX(23), boardy1 + rowSpacing * (board.height - j - 1) + this.toScreenY(18), 100, 100);
+                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(35), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(35), 100, 100);
                         }
                     }
                 }
             }
-            if (fingerPosX != -1) {
-                blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + this.toScreenX(23), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + this.toScreenY(10), 100, 100, -10, 99);
-            }
 
             //Play man animation
-            if(playAnimation){
+            if (playAnimation && !animationQ.isEmpty()) {
+                Animation a;
+                for (int i = 0; i < animationQ.size(); i++) {
+                    a = animationQ.get(i);
+                    if (a.isDone()) {
+                        animationQ.remove(0);
+                        i--;
+                    } else {
+                        double r = a.getCompletionRatio();
+                        if (a.getMan() == Man.BLACK) {
+                            blackMan.draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) ((a.getRow() * rowSpacing) * r) + toScreenX(35), 100, 100);
+                        } else {
+                            whiteMan.draw(canvas, boardx1 + a.getCol() * rowSpacing + toScreenX(35), boardy1 + (int) ((a.getRow() * rowSpacing) * r) + toScreenX(35), 100, 100);
+                        }
+                        a.newFrame();
+                    }
+                }
+            }
+            if (fingerPosX != -1) {
+                blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + toScreenX(35), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + toScreenY(35), 100, 100, -10, 99);
+            }
+
+            /*if(playAnimation){
                 int factorAnim = (boardy2-colAnimation*rowSpacing-boardy1)/ANIMAX;
                 if (this.playingMan == Man.BLACK) {
                     whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + factorAnim*animation + this.toScreenY(18), 100, 100, animation+10, 100);
                 } else {
                     blackMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + rowSpacing * (board.height - colAnimation- 1) + this.toScreenY(18), 100, 100, animation+10, 100);
                 }
-            }
+            }*/
 
-
+            //Draw board
+            boardimg.draw(canvas, boardx1, boardy1, boardx2 - boardx1, boardy2 - boardy1);
+            //paint.setColor(Color.argb(255, 0, 0, 128));
+            //paint.setStyle(Paint.Style.FILL);
+            //canvas.drawRoundRect(boardx1, boardy1, boardx2, boardy2, 50, 50, paint);
 
             long fps = myView.getFPS();
             drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
@@ -170,22 +197,12 @@ public class Controller {
                 drawCenteredText(canvas, "GAME OVER", 80, Color.RED, 200);
                 for (int i = 0; i < this.inRow.length; i++) {
                     if (winner == Man.BLACK) {
-                        blackMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation+10, 100);
+                        blackMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(35), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(35), 100, 100, animation + 10, 100);
                     } else {
-                        whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(23), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(18), 100, 100, animation+10, 100);
+                        whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * inRow[i][1] + this.toScreenX(35), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + this.toScreenY(35), 100, 100, animation + 10, 100);
                     }
                 }
             }
-
-
-
-
-            if(animation >= ANIMAX){
-                animationIncrease = -1;
-            }else if(animation <= -ANIMAX){
-                animationIncrease = 1;
-            }
-            animation = animation + animationIncrease;
 
 
             holder.unlockCanvasAndPost(canvas);
@@ -195,7 +212,7 @@ public class Controller {
 
     public void handleInput(int x, int y) {
         //
-        if(gameOver){
+        if (gameOver) {
 
         }
 
@@ -284,6 +301,8 @@ public class Controller {
         */
         manPlayer = Man.BLACK;
         manIA = Man.WHITE;
+
+        animationMan = manPlayer;
     }
 
     public void turnPlayer() {
@@ -300,10 +319,11 @@ public class Controller {
         //while (playingMan == manIA) {
         try {
             ia.setWaiting(false);
-        } catch(IllegalThreadStateException e){
+        } catch (IllegalThreadStateException e) {
             e.printStackTrace();
-        }catch (Exception e) {
-            e.printStackTrace();;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ;
         }
         //}
     }
@@ -328,12 +348,10 @@ public class Controller {
     /* Plays a man on a column.
     Throws ColumnFullException, so it has to be handled individually.
     Ends the game when GameOverException.*/
-    public void playMan(int col) throws ColumnFullException{
+    public void playMan(int col) throws ColumnFullException {
         try {
             board.playMan(col, playingMan);
-            animation = 0;
-            colAnimation = col;
-            rowAnimation = board.getTopPos(col);
+            animationQ.add(new Animation(playingMan, col, board.getTopPos(col)));
             playAnimation = true;
             newTurn();
         } catch (GameOverException e) {
@@ -377,5 +395,16 @@ public class Controller {
 
     public Man getSquare(int col, int row) {
         return board.getSquare(row, col);
+    }
+
+    public boolean inAnimationQ(int row, int col) {
+        boolean found = false;
+        for (int i = 0; i < animationQ.size(); i++) {
+            if (animationQ.get(i).getRow() == row && animationQ.get(i).getCol() == col) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 }
