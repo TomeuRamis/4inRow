@@ -38,7 +38,7 @@ public class Animation {
     public void newFrame() {
         if (!done) {
             currentFrame++;
-            if (state == 3 && currentFrame > END ) {
+            if (state == 3 && currentFrame > END) {
                 done = true;
             } else if (state == 2 && currentFrame > BOUNCE) {
                 state = 3;
@@ -64,14 +64,18 @@ public class Animation {
             case 1:
                 return (double) currentFrame / FALL;
             case 2:
-                return (double) currentFrame / BOUNCE;
+                return (double) (currentFrame / BOUNCE) + 0.1;
             case 3:
-                return (double) currentFrame / END;
+                return (double) (currentFrame / END) + 0.1;
         }
         return (double) currentFrame / frames;
     }
 
     public int getState() {
         return state;
+    }
+
+    public void setState(int i) {
+        state = i;
     }
 }

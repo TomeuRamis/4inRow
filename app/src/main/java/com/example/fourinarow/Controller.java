@@ -3,8 +3,10 @@ package com.example.fourinarow;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Shader;
 import android.os.Build;
 import android.view.SurfaceHolder;
 
@@ -12,6 +14,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Controller {
 
@@ -22,6 +25,7 @@ public class Controller {
     Boolean gameOver = false;
 
     IA ia;
+    boolean loading = true;
 
     Boolean blackPlays = true;
     Man playingMan = Man.BLACK;
@@ -51,8 +55,9 @@ public class Controller {
 
     private Paint paint;
     private Point center;
-    private Image imatge, blackMan, whiteMan, blankMan, boardimg, flare;
-    private Button helpButton;
+    private Image imatge, blackMan, whiteMan, blankMan, boardimg, background;
+    private Button replay;
+
     private boolean playAnimation = false;
     private int colAnimation, rowAnimation;
     private int animation = 0;
@@ -88,8 +93,8 @@ public class Controller {
         whiteMan = new Image(m, R.drawable.yellow_man);
         blankMan = new Image(m, R.drawable.white_man);
         boardimg = new Image(m, R.drawable.board);
-        flare = new Image(m, R.drawable.flare);
-        helpButton = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
+        background = new Image(m, R.drawable.background);
+        replay = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
@@ -130,15 +135,15 @@ public class Controller {
             //First we lock the area of memory we will be drawing to
             canvas = holder.lockCanvas();
 
-            //draw a background color
-            canvas.drawColor(Color.argb(255, 135, 206, 230));
+            //draw a background
+            //canvas.drawColor(Color.argb(255, 135, 206, 230));
+            background.draw(canvas, 0, 0, screenWidth, screenHeight);
 
             // Unlock and draw the scene
             paint = new Paint();
 
-
+            //Background
             paint.setColor(Color.argb(255, 135, 206, 230));
-            //paint.setStyle(Paint.Style.FILL);
             int columnSpacing = (int) (128 * (double) toScreenX(700) / 700);
             int rowSpacing = (int) (127 * (double) toScreenY(600) / 600);
             for (int i = 0; i < board.width; i++) {
@@ -146,9 +151,9 @@ public class Controller {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
                     if (board.getSquare(j, i) != Man.EMPTY && !inAnimationQ(j, i)) {
                         if (board.getSquare(j, i) == Man.BLACK) {
-                            blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(35), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(35), 100, 100);
+                            blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), 104, 104);
                         } else {
-                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(35), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(35), 100, 100);
+                            whiteMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), 104, 104);
                         }
                     }
                 }
@@ -169,19 +174,19 @@ public class Controller {
                         switch (a.getState()) {
                             case 0:
                                 r = a.getCompletionRatio() * toScreenY(95);
-                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(-70), 100, 100);
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(33), boardy1 + (int) r + toScreenY(-70), 104, 104);
                                 break;
                             case 1:
                                 r = a.getCompletionRatio() * rowSpacing * (board.height - 1 - a.getRow());
-                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(35), 100, 100);
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(33), boardy1 + (int) r + toScreenY(33), 104, 104);
                                 break;
                             case 2:
-                                r = a.getCompletionRatio() * -toScreenY(35) * f;
-                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + (int) r + toScreenY(35) + rowSpacing * (board.height - 1 - a.getRow()), 100, 100);
+                                r = a.getCompletionRatio() * -toScreenY(33) * f;
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(33), boardy1 + (int) r + toScreenY(33) + rowSpacing * (board.height - 1 - a.getRow()), 104, 104);
                                 break;
                             case 3:
-                                r = (a.getCompletionRatio() * toScreenY(35)) * f;
-                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + (int) r - (int) (toScreenY(35) * f - toScreenY(35)) + rowSpacing * (board.height - 1 - a.getRow()), 100, 100);
+                                r = (a.getCompletionRatio() * toScreenY(33)) * f;
+                                a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(33), boardy1 + (int) r - (int) (toScreenY(33) * f - toScreenY(33)) + rowSpacing * (board.height - 1 - a.getRow()), 104, 104);
                                 break;
                         }
                     }
@@ -193,20 +198,8 @@ public class Controller {
                 blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + toScreenX(35), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + toScreenY(35), 100, 100, -10, 99);
             }
 
-            /*if(playAnimation){
-                int factorAnim = (boardy2-colAnimation*rowSpacing-boardy1)/ANIMAX;
-                if (this.playingMan == Man.BLACK) {
-                    whiteMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + factorAnim*animation + this.toScreenY(18), 100, 100, animation+10, 100);
-                } else {
-                    blackMan.filteredDraw(canvas, boardx1 + columnSpacing * rowAnimation + this.toScreenX(23), boardy1 + rowSpacing * (board.height - colAnimation- 1) + this.toScreenY(18), 100, 100, animation+10, 100);
-                }
-            }*/
-
             //Draw board
             boardimg.draw(canvas, boardx1, boardy1, boardx2 - boardx1, boardy2 - boardy1);
-            //paint.setColor(Color.argb(255, 0, 0, 128));
-            //paint.setStyle(Paint.Style.FILL);
-            //canvas.drawRoundRect(boardx1, boardy1, boardx2, boardy2, 50, 50, paint);
 
             long fps = myView.getFPS();
             drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
@@ -217,10 +210,11 @@ public class Controller {
                     paint.setColor(Color.argb(200, 255, 255, 255));
                     for (int i = 0; i < this.inRow.length; i++) {
                         if (winner == Man.BLACK) {
-                            flare.filteredDraw(canvas,boardx1 + columnSpacing * inRow[i][1] , boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) , 170, 170, 255, 100);
+                            canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
+                            blackMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
                         } else {
-                            canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing*0.5)+ toScreenX(22),boardy1 + rowSpacing * (board.height - inRow[i][0] - 1)+ (int)(rowSpacing*0.5)+ toScreenY(22), 56,paint);
-                            whiteMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(35), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(35), 100, 100);
+                            canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
+                            whiteMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
                         }
                     }
                 }
@@ -231,9 +225,8 @@ public class Controller {
 
 
     public void handleInput(int x, int y) {
-        //
-        if (gameOver) {
-
+        if (loading) {
+            return;
         }
 
         //Board
@@ -252,6 +245,9 @@ public class Controller {
     }
 
     public void handleStopInput(int x, int y) {
+        if (loading) {
+            return;
+        }
         //Board
         if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2) {
             if (this.playingMan == this.manPlayer) {
@@ -436,5 +432,57 @@ public class Controller {
             }
         }
         return found;
+    }
+
+    public void doneLoad(){
+        animationQ = new ArrayList<>();
+        loading =false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void loadinganim(SurfaceHolder holder) {
+        if (holder.getSurface().isValid()) {
+            //First we lock the area of memory we will be drawing to
+            canvas = holder.lockCanvas();
+
+            //draw a background
+            canvas.drawColor(Color.argb(255, 0, 0, 0));
+
+            // Unlock and draw the scene
+            paint = new Paint();
+            paint.setColor(Color.argb(255, 255, 255, 255));
+            canvas.drawRoundRect(modelCenterX - toScreenX(250), -20, modelCenterX + toScreenX(250), screenHeight+20, 20, 20, paint);
+            paint.setColor(Color.argb(255, 0, 0, 0));
+            int rows = screenHeight/125;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < rows; j++) {
+                    canvas.drawCircle(modelCenterX - toScreenX(190)+(int) (toScreenX(125) * i), (int) (toScreenY(133) * j), 50, paint);
+                }
+            }
+
+            //Play man animation
+            paint.setColor(Color.argb(255, 255, 255, 255));
+            if (playAnimation && !animationQ.isEmpty()) {
+                for (int i = 0; i < animationQ.size(); i++) {
+                    Animation a = animationQ.get(i);
+                    Random ran = new Random();
+                    if (a.getState() == 100) {
+                        animationQ.remove(0);
+                        i--;
+                    } else if (a.getState() == 25) {
+                        animationQ.add(new Animation(blackMan, ran.nextInt(4), 0));
+                        //canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), modelCenterY - toScreenY(140) + toScreenY(133) * (2 - a.getRow()), 50, paint);
+                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), (screenHeight+20)*a.getState()/100, 48, paint);
+                    } else {
+                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), (screenHeight+20)*a.getState()/100, 48, paint);
+                    }
+                    a.setState(a.getState()+1);
+                }
+
+            }else{
+                animationQ.add(new Animation(blackMan, 0, 0));
+            }
+            holder.unlockCanvasAndPost(canvas);
+        }
     }
 }

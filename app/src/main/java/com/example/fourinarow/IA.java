@@ -39,7 +39,6 @@ public class IA extends Thread {
         this.team = m;
         Board b = (Board) board.clone();
         root = new Node(b);
-        generateTree(root, treeDepth);
     }
 
     /*
@@ -100,7 +99,9 @@ public class IA extends Thread {
 
     @Override
     public void run() {
-        while(!gameover) {
+        generateTree(root, treeDepth);
+        control.doneLoad();
+        while (!gameover) {
             while (waiting) {
                 try {
                     Thread.sleep(100);
@@ -202,7 +203,7 @@ public class IA extends Thread {
 
     public int minmax(Node node, int depth, boolean max, int alpha, int beta) {
         //If the three has not generated completly
-        if(node.child.isEmpty() && depth > 0 && !node.terminal){
+        if (node.child.isEmpty() && depth > 0 && !node.terminal) {
             updateDecisionTree(node, depth);
         }
         //If we have arrived at the maximum depth or to a leaf node
@@ -289,10 +290,10 @@ public class IA extends Thread {
             //Node is leaf and needs to be evaluated. This node is a brother or a son of the last one
             if (node.isLeaf() && father[depth] == node.father) {
                 //If the depth is 0 or its a terminal node, we have arrived at the bottom of the tree
-                if(depth == 0 || node.terminal) {
+                if (depth == 0 || node.terminal) {
                     node.score = evaluateNode(node);
                     values[depth].add(node.score);
-                }else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
+                } else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
                 {
                     generateTree(node, depth);
                     //We add this node again in order to re-evaluate it
@@ -311,10 +312,10 @@ public class IA extends Thread {
                 }
 
                 //If it's a terminal node evaluate it
-                if(node.terminal) {
+                if (node.terminal) {
                     node.score = evaluateNode(node);
                     values[depth].add(node.score);
-                }else{ //If its not, generate a deeper tree
+                } else { //If its not, generate a deeper tree
                     generateTree(node, depth);
                     //We add this node again in order to re-evaluate it
                     stack.add(node);
@@ -365,29 +366,29 @@ public class IA extends Thread {
         Stack stack = new Stack();
         stack.push(root);
 
-         while (!stack.empty()) {
+        while (!stack.empty()) {
 
             node = (Node) stack.pop();
 
             //Node is leaf and needs to be evaluated. This node is a brother or a son of the last one
             if (node.isLeaf() && father[depth] == node.father) {
                 //If the depth is 0 or its a terminal node, we have arrived at the bottom of the tree
-                if(depth == 0 || node.terminal) {
+                if (depth == 0 || node.terminal) {
                     node.score = evaluateNode(node);
                     values[depth].add(node.score);
 
                     //pruning logic
-                    if(max){
+                    if (max) {
                         alpha = Math.max(alpha, node.score);
-                    }else{
+                    } else {
                         beta = Math.min(beta, node.score);
                     }
-                    if(beta < alpha){
+                    if (beta < alpha) {
                         //prune
                         stack = prune(stack, father[depth]);
                     }
 
-                }else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
+                } else //If the depth is higher than 0 and it's not a terminal node, we need to generate the rest of the tree
                 {
                     generateTree(node, depth);
                     //We add this node again in order to re-evaluate it
@@ -404,34 +405,34 @@ public class IA extends Thread {
                     max = increaseDepth(max);
                     values[depth].add(score);
 
-                    if(max && beta > alpha){
+                    if (max && beta > alpha) {
                         alpha = beta;
-                    }else if( !max && alpha < beta){
+                    } else if (!max && alpha < beta) {
                         beta = alpha;
                     }
                 }
-                if(max){
+                if (max) {
                     beta = 1000;
-                }else{
+                } else {
                     alpha = -1000;
                 }
 
                 //If it's a terminal node evaluate it
-                if(node.terminal) {
+                if (node.terminal) {
                     node.score = evaluateNode(node);
                     values[depth].add(node.score);
 
                     //pruning logic
-                    if(max){
+                    if (max) {
                         alpha = Math.max(alpha, node.score);
-                    }else{
+                    } else {
                         beta = Math.min(beta, node.score);
                     }
-                    if(beta < alpha){
+                    if (beta < alpha) {
                         //prune
                         stack = prune(stack, father[depth]);
                     }
-                }else{ //If its not, generate a deeper tree
+                } else { //If its not, generate a deeper tree
                     generateTree(node, depth);
                     //We add this node again in order to re-evaluate it
                     stack.add(node);
@@ -454,15 +455,15 @@ public class IA extends Thread {
                     max = increaseDepth(max);
                     values[depth].add(score);
 
-                    if(max && beta > alpha){
+                    if (max && beta > alpha) {
                         alpha = beta;
-                    }else if( !max && alpha < beta){
+                    } else if (!max && alpha < beta) {
                         beta = alpha;
                     }
                 }
-                if(max){
+                if (max) {
                     beta = 1000;
-                }else{
+                } else {
                     alpha = -1000;
                 }
 
@@ -474,9 +475,9 @@ public class IA extends Thread {
         }
     }
 
-    public Stack prune(Stack stack, Node father){
+    public Stack prune(Stack stack, Node father) {
         Node node = (Node) stack.peek();
-        while(node.father == father){
+        while (node.father == father) {
             stack.pop();
             node = (Node) stack.peek();
         }
@@ -707,14 +708,16 @@ public class IA extends Thread {
         return board.mans == board.height * board.width;
     }
 
-    public void gameover(){
+    public void gameover() {
         gameover = true;
     }
 
-    public void setWaiting(boolean b){
+    public void setWaiting(boolean b) {
         this.waiting = b;
     }
 
-    public boolean getWaiting(){ return this.waiting;}
+    public boolean getWaiting() {
+        return this.waiting;
+    }
 
 }

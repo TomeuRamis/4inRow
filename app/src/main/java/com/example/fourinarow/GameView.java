@@ -40,10 +40,15 @@ public class GameView extends SurfaceView implements Runnable {
         while (running) {
             long startFrameTime = System.currentTimeMillis();
 
-            if(!control.gameOver) {
+            if (!control.gameOver) {
                 control.update(fps);
             }
-            control.draw(ourHolder);
+            if (control.loading) {
+                control.loadinganim(ourHolder);
+            } else {
+                control.draw(ourHolder);
+            }
+
 
             // Calculate the fps this frame
             timeThisFrame = System.currentTimeMillis() - startFrameTime;
@@ -124,5 +129,10 @@ public class GameView extends SurfaceView implements Runnable {
             }
         }
         //game.resetPoints();
+    }
+
+    public void stop(){
+        control.ia.gameover = true;
+        control = null;
     }
 }

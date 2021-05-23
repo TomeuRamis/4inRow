@@ -1,10 +1,12 @@
 package com.example.fourinarow;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Constraints;
 
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.Display;
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GameView view;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -88,10 +91,13 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed(){
         // do something here and don't write super.onBackPressed()
         System.out.println("BACK BUTTON");
+        view.stop();
         super.onBackPressed();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void restart(View view) {
+
         this.column = 0;
         setDevMode(false);
 
