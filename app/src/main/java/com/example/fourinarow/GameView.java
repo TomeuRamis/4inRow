@@ -1,6 +1,7 @@
 package com.example.fourinarow;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -23,6 +24,8 @@ public class GameView extends SurfaceView implements Runnable {
     long fps = 30;
     long realFPS = 0;
 
+    int fade = 0;
+
     GameView(Context context, int screenWidth, int screenHeight) {
         super(context);
 
@@ -43,11 +46,19 @@ public class GameView extends SurfaceView implements Runnable {
             if (!control.gameOver) {
                 control.update(fps);
             }
-            if (control.loading) {
-                control.loadinganim(ourHolder);
-            } else {
+            if (!control.loading && fade < 255) {
+                fade += 5;
+            }
+            if(fade < 255){
+                control.loadinganim(ourHolder, 255-fade);
+            }else if(fade == 255){
+                control.resetAniamtionQ();
+                control.draw(ourHolder);
+                fade += 5;
+            }else{
                 control.draw(ourHolder);
             }
+
 
 
             // Calculate the fps this frame

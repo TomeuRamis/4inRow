@@ -3,34 +3,30 @@ package com.example.fourinarow;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Shader;
 import android.os.Build;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class Controller {
 
     Board board;
-    MainActivity main;
-    Boolean devmode = false;
-    int turn = 0;
-    Boolean gameOver = false;
+    Boolean devmode;
+    int turn;
+    Boolean gameOver;
 
     IA ia;
     boolean loading = true;
 
     Boolean blackPlays = true;
     Man playingMan = Man.BLACK;
-    Man manPlayer = null;
-    Man manIA = null;
+    Man manPlayer;
+    Man manIA;
 
     int[][] inRow;
     Man winner;
@@ -43,10 +39,10 @@ public class Controller {
     private GameView myView;
 
     // Dimensions of the ideal screen, to fit any other resolution
-    private int modelViewX = 1080;
-    private int modelViewY = 2060;
-    private int modelCenterX = modelViewX / 2;
-    private int modelCenterY = modelViewY / 2;
+    private final int modelViewX = 1080;
+    private final int modelViewY = 2060;
+    private final int modelCenterX = modelViewX / 2;
+    private final int modelCenterY = modelViewY / 2;
 
     // Drawing Ratio for this screen
     private float ratioH = 1;
@@ -58,20 +54,18 @@ public class Controller {
     private Image imatge, blackMan, whiteMan, blankMan, boardimg, background;
     private Button replay;
 
-    private boolean playAnimation = false;
-    private int colAnimation, rowAnimation;
-    private int animation = 0;
-    private int animationIncrease = 1;
-    private final int ANIMAX = 10;
-    private Man animationMan;
+    private boolean playAnimation;
     private ArrayList<Animation> animationQ;
 
     private int boardx1, boardx2, boardy1, boardy2;
     private int fingerPosX, FingerPosY;
 
     public Controller(Context context, GameView m, int width, int height, int screenWidth, int screenHeight) {
+
+        devmode = false;
+        turn = 0;
+        gameOver = false;
         board = new Board(width, height);
-        this.main = main;
 
         //fontJoc = Typeface.createFromAsset(context.getAssets(), "fonts/arkitechbold.ttf");
 
@@ -89,25 +83,26 @@ public class Controller {
         ratioH = 1 / ratio1;
         ratioV = 1 / ratio2;
 
-        blackMan = new Image(m, R.drawable.red_man);
-        whiteMan = new Image(m, R.drawable.yellow_man);
-        blankMan = new Image(m, R.drawable.white_man);
-        boardimg = new Image(m, R.drawable.board);
-        background = new Image(m, R.drawable.background);
-        replay = new Button(m, R.drawable.helpon, R.drawable.helpoff, 300, 500, 400, 200);
-
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
         boardy1 = screenHeight / 4;
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
 
+        blackMan = new Image(m, R.drawable.red_man);
+        whiteMan = new Image(m, R.drawable.yellow_man);
+        blankMan = new Image(m, R.drawable.white_man);
+        boardimg = new Image(m, R.drawable.board);
+        background = new Image(m, R.drawable.background);
+        replay = new Button(m, R.drawable.replay2, R.drawable.replay1, toScreenX(boardx1), toScreenY(boardy2 + 100), 250, 250);
+
+        fingerPosX = -1;
         animationQ = new ArrayList<>();
         playAnimation = true;
         initGame();
     }
 
     public void initGame() {
-        // inicialitzacions
+        // initializations
         assignTeams();
         ia = new IA(this.board, this, this.manIA);
         ia.start();
@@ -205,6 +200,7 @@ public class Controller {
             drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
 
             if (gameOver) {
+                replay.draw(canvas);
                 drawCenteredText(canvas, "GAME OVER", 80, Color.RED, 200);
                 if (animationQ.isEmpty()) {
                     paint.setColor(Color.argb(200, 255, 255, 255));
@@ -229,8 +225,12 @@ public class Controller {
             return;
         }
 
+        if (gameOver && replay.contains(x, y)) {
+            replay.select();
+        }
+
         //Board
-        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2) {
+        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2 && !gameOver) {
             if (this.playingMan == this.manPlayer) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
@@ -248,8 +248,16 @@ public class Controller {
         if (loading) {
             return;
         }
+
+        if (gameOver && replay.contains(x, y) && replay.isSelected()) {
+            replay.unSelect();
+            replay();
+        } else if (gameOver && !replay.contains(x, y) && replay.isSelected()) {
+            replay.unSelect();
+        }
+
         //Board
-        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2) {
+        if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2 && !gameOver) {
             if (this.playingMan == this.manPlayer) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
@@ -263,6 +271,17 @@ public class Controller {
         } else {
             fingerPosX = -1;
         }
+    }
+
+    public void replay() {
+        devmode = false;
+        turn = 0;
+        board = new Board(this.board.width, this.board.height);
+        resetAniamtionQ();
+        playingMan = Man.BLACK;
+        blackPlays = true;
+        initGame();
+        gameOver = false;
     }
 
     public void drawCenteredText(Canvas canvas, String txt, int size, int color, int pos) {
@@ -305,20 +324,39 @@ public class Controller {
     }
 
     public void assignTeams() {
-        /* //Not for now
-        Random ran = new Random(10);
-        if(ran.nextInt(10)%2 == 0){
+
+        if (winner != null) {
+            if (winner == Man.BLACK) {
+                if (manPlayer == Man.BLACK) {
+                    manPlayer = Man.WHITE;
+                    manIA = Man.BLACK;
+                } else {
+                    manPlayer = Man.BLACK;
+                    manIA = Man.WHITE;
+                }
+            } else {
+                if (manPlayer == Man.BLACK) {
+                    manPlayer = Man.BLACK;
+                    manIA = Man.WHITE;
+                } else {
+                    manPlayer = Man.WHITE;
+                    manIA = Man.BLACK;
+                }
+            }
+        } else {
+            /* //Not for now
+            Random ran = new Random(10);
+            if(ran.nextInt(10)%2 == 0){
             player = Man.BLACK;
             ia = Man.WHITE;
-        } else{
+            } else{
             player = Man.WHITE;
             ia = Man.BLACK;
+            }*/
+            manPlayer = Man.BLACK;
+            manIA = Man.WHITE;
         }
-        */
-        manPlayer = Man.BLACK;
-        manIA = Man.WHITE;
 
-        animationMan = manPlayer;
     }
 
     public void turnPlayer() {
@@ -434,55 +472,71 @@ public class Controller {
         return found;
     }
 
-    public void doneLoad(){
-        animationQ = new ArrayList<>();
-        loading =false;
+    public void doneLoad() {
+        loading = false;
     }
 
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void loadinganim(SurfaceHolder holder) {
+    public void loadinganim(SurfaceHolder holder, int alpha) {
         if (holder.getSurface().isValid()) {
             //First we lock the area of memory we will be drawing to
             canvas = holder.lockCanvas();
 
+            if (alpha < 255) {
+                background.draw(canvas, 0, 0, screenWidth, screenHeight);
+                //Draw board
+                boardimg.draw(canvas, boardx1, boardy1, boardx2 - boardx1, boardy2 - boardy1);
+            }
+
             //draw a background
-            canvas.drawColor(Color.argb(255, 0, 0, 0));
+            canvas.drawColor(Color.argb(alpha, 0, 0, 0));
 
             // Unlock and draw the scene
             paint = new Paint();
-            paint.setColor(Color.argb(255, 255, 255, 255));
-            canvas.drawRoundRect(modelCenterX - toScreenX(250), -20, modelCenterX + toScreenX(250), screenHeight+20, 20, 20, paint);
-            paint.setColor(Color.argb(255, 0, 0, 0));
-            int rows = screenHeight/125;
+            paint.setColor(Color.argb(alpha, 255, 255, 255));
+            canvas.drawRoundRect(modelCenterX - toScreenX(250), modelCenterY - toScreenY(200), modelCenterX + toScreenX(250), modelCenterY + toScreenY(200), 20, 20, paint);
+            paint.setColor(Color.argb(alpha, 0, 0, 0));
             for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < rows; j++) {
-                    canvas.drawCircle(modelCenterX - toScreenX(190)+(int) (toScreenX(125) * i), (int) (toScreenY(133) * j), 50, paint);
+                for (int j = 0; j < 3; j++) {
+                    canvas.drawCircle(modelCenterX - toScreenX(190) + (int) (toScreenX(125) * i), modelCenterY - toScreenY(140) + (int) (toScreenY(133) * j), 50, paint);
                 }
             }
 
             //Play man animation
-            paint.setColor(Color.argb(255, 255, 255, 255));
+            paint.setColor(Color.argb(alpha, 255, 255, 255));
             if (playAnimation && !animationQ.isEmpty()) {
                 for (int i = 0; i < animationQ.size(); i++) {
                     Animation a = animationQ.get(i);
                     Random ran = new Random();
-                    if (a.getState() == 100) {
-                        animationQ.remove(0);
-                        i--;
-                    } else if (a.getState() == 25) {
-                        animationQ.add(new Animation(blackMan, ran.nextInt(4), 0));
-                        //canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), modelCenterY - toScreenY(140) + toScreenY(133) * (2 - a.getRow()), 50, paint);
-                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), (screenHeight+20)*a.getState()/100, 48, paint);
+                    if (a.getState() == 40) {
+                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), modelCenterY - toScreenY(140) + toScreenY(133) * (2 - a.getRow()), 48, paint);
+                        a.setState(0);
                     } else {
-                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), (screenHeight+20)*a.getState()/100, 48, paint);
+                        canvas.drawCircle(modelCenterX + a.getCol() * toScreenX(125) - toScreenX(190), modelCenterY - toScreenY(140) + (int) (toScreenY(133) * (2 - a.getRow()) * (double) a.getState() / 40), 48, paint);
                     }
-                    a.setState(a.getState()+1);
+                    a.setState(a.getState() + 1);
                 }
 
-            }else{
-                animationQ.add(new Animation(blackMan, 0, 0));
+            } else {
+                Animation a = new Animation(blackMan, 0, 0);
+                a.setState(30);
+                animationQ.add(a);
+                a = new Animation(blackMan, 1, 0);
+                a.setState(20);
+                animationQ.add(a);
+                a = new Animation(blackMan, 2, 0);
+                a.setState(10);
+                animationQ.add(a);
+                a = new Animation(blackMan, 3, 0);
+                a.setState(0);
+                animationQ.add(a);
             }
             holder.unlockCanvasAndPost(canvas);
         }
+    }
+
+    public void resetAniamtionQ() {
+        animationQ = new ArrayList<>();
     }
 }

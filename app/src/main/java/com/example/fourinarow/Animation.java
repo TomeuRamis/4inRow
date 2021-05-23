@@ -9,10 +9,10 @@ public class Animation {
     private int col;
     private int row;
     private int state = 0;
-    private final int START = 3;
-    private final int FALL = 8;
-    private final int BOUNCE = 2;
-    private final int END = 2;
+    private int START = 3;
+    private int FALL = 8;
+    private int BOUNCE = 2;
+    private int END = 2;
     private int currentFrame = 0;
     private int frames = START + FALL + BOUNCE + END;
     private boolean done = false;
