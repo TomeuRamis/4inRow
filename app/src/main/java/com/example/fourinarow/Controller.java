@@ -5,10 +5,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -51,13 +53,14 @@ public class Controller {
 
     private Paint paint;
     private Point center;
-    private Image imatge, blackMan, whiteMan, blankMan, boardimg, background;
-    private Button replay;
+    private Image blackMan, whiteMan, blankMan, boardimg, background;
+    private Typeface fontJoc;
+    private Button replay, back;
 
     private boolean playAnimation;
     private ArrayList<Animation> animationQ;
 
-    private int boardx1, boardx2, boardy1, boardy2;
+    private int boardx1, boardx2, boardy1, boardy2, topbar;
     private int fingerPosX, FingerPosY;
 
     public Controller(Context context, GameView m, int width, int height, int screenWidth, int screenHeight) {
@@ -67,7 +70,7 @@ public class Controller {
         gameOver = false;
         board = new Board(width, height);
 
-        //fontJoc = Typeface.createFromAsset(context.getAssets(), "fonts/arkitechbold.ttf");
+        fontJoc = ResourcesCompat.getFont(context, R.font.agroundedboldbook);
 
         this.context = context;
         this.myView = m;
@@ -85,15 +88,18 @@ public class Controller {
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
-        boardy1 = screenHeight / 4;
+        boardy1 = screenHeight / 6 * 2 ;
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
+        topbar = toScreenY(200);
 
         blackMan = new Image(m, R.drawable.red_man);
         whiteMan = new Image(m, R.drawable.yellow_man);
         blankMan = new Image(m, R.drawable.white_man);
         boardimg = new Image(m, R.drawable.board);
         background = new Image(m, R.drawable.background);
-        replay = new Button(m, R.drawable.replay2, R.drawable.replay1, toScreenX(boardx1), toScreenY(boardy2 + 100), 250, 250);
+
+        back = new Button(m, R.drawable.back, R.drawable.back, toScreenX(20), topbar/3 + toScreenY(0), 200, 75);
+        replay = new Button(m, R.drawable.replay2, R.drawable.replay1, screenWidth-200 , topbar/3 - toScreenY(40), 150, 150);
 
         fingerPosX = -1;
         animationQ = new ArrayList<>();
@@ -104,6 +110,9 @@ public class Controller {
     public void initGame() {
         // initializations
         assignTeams();
+        if(ia != null){
+            ia.gameover = true;
+        }
         ia = new IA(this.board, this, this.manIA);
         ia.start();
         //main.doneLoad();
@@ -137,7 +146,12 @@ public class Controller {
             // Unlock and draw the scene
             paint = new Paint();
 
-            //Background
+            //Top bar
+            paint.setColor(Color.argb(225, 71,40,255));
+            canvas.drawRect(0, 0, screenWidth, topbar, paint);
+            back.draw(canvas);
+
+            //Mans
             paint.setColor(Color.argb(255, 135, 206, 230));
             int columnSpacing = (int) (128 * (double) toScreenX(700) / 700);
             int rowSpacing = (int) (127 * (double) toScreenY(600) / 600);
@@ -196,12 +210,12 @@ public class Controller {
             //Draw board
             boardimg.draw(canvas, boardx1, boardy1, boardx2 - boardx1, boardy2 - boardy1);
 
-            long fps = myView.getFPS();
-            drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
+            //long fps = myView.getFPS();
+            //drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
 
             if (gameOver) {
                 replay.draw(canvas);
-                drawCenteredText(canvas, "GAME OVER", 80, Color.RED, 200);
+                drawCenteredText(canvas, "GAME OVER", 80, Color.rgb(255,255,255), topbar-toScreenY(50));
                 if (animationQ.isEmpty()) {
                     paint.setColor(Color.argb(200, 255, 255, 255));
                     for (int i = 0; i < this.inRow.length; i++) {
@@ -227,6 +241,10 @@ public class Controller {
 
         if (gameOver && replay.contains(x, y)) {
             replay.select();
+        }
+
+        if (back.contains(x, y)) {
+            ((MainActivity)context).onBackPressed();
         }
 
         //Board
@@ -286,7 +304,7 @@ public class Controller {
 
     public void drawCenteredText(Canvas canvas, String txt, int size, int color, int pos) {
         Paint paintText = new Paint();
-        //paintText.setTypeface(fontJoc);
+        paintText.setTypeface(fontJoc);
         paintText.setTextSize(toScreenX(size));
 
         // Centrat horitzontal

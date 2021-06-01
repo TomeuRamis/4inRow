@@ -144,6 +144,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void stop(){
         control.ia.gameover = true;
-        control = null;
+        //control = null;
+        running = false;
     }
 }
