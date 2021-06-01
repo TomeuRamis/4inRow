@@ -88,7 +88,7 @@ public class Controller {
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
-        boardy1 = screenHeight / 6 * 2 ;
+        boardy1 = screenHeight / 6 * 2;
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
         topbar = toScreenY(200);
 
@@ -98,8 +98,8 @@ public class Controller {
         boardimg = new Image(m, R.drawable.board);
         background = new Image(m, R.drawable.background);
 
-        back = new Button(m, R.drawable.back, R.drawable.back, toScreenX(20), topbar/3 + toScreenY(0), 200, 75);
-        replay = new Button(m, R.drawable.replay2, R.drawable.replay1, screenWidth-200 , topbar/3 - toScreenY(40), 150, 150);
+        back = new Button(m, R.drawable.back, R.drawable.back, toScreenX(20), topbar / 3 + toScreenY(0), 200, 75);
+        replay = new Button(m, R.drawable.replay2, R.drawable.replay1, screenWidth - 200, topbar / 3 - toScreenY(40), 150, 150);
 
         fingerPosX = -1;
         animationQ = new ArrayList<>();
@@ -110,7 +110,7 @@ public class Controller {
     public void initGame() {
         // initializations
         assignTeams();
-        if(ia != null){
+        if (ia != null) {
             ia.gameover = true;
         }
         ia = new IA(this.board, this, this.manIA);
@@ -147,7 +147,7 @@ public class Controller {
             paint = new Paint();
 
             //Top bar
-            paint.setColor(Color.argb(225, 71,40,255));
+            paint.setColor(Color.argb(225, 71, 40, 255));
             canvas.drawRect(0, 0, screenWidth, topbar, paint);
             back.draw(canvas);
 
@@ -215,7 +215,7 @@ public class Controller {
 
             if (gameOver) {
                 replay.draw(canvas);
-                drawCenteredText(canvas, "GAME OVER", 80, Color.rgb(255,255,255), topbar-toScreenY(50));
+                drawCenteredText(canvas, "GAME OVER", 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
                 if (animationQ.isEmpty()) {
                     paint.setColor(Color.argb(200, 255, 255, 255));
                     for (int i = 0; i < this.inRow.length; i++) {
@@ -228,6 +228,18 @@ public class Controller {
                         }
                     }
                 }
+            } else {
+                String txt = "";
+                if (turn == 0) {
+                    if (playingMan == this.manIA) {
+                        txt = "IA opens";
+                    } else {
+                        txt = "Play!";
+                    }
+                } else {
+                    txt = "turn " + this.turn;
+                }
+                drawCenteredText(canvas, txt, 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
             }
             holder.unlockCanvasAndPost(canvas);
         }
@@ -244,7 +256,7 @@ public class Controller {
         }
 
         if (back.contains(x, y)) {
-            ((MainActivity)context).onBackPressed();
+            ((MainActivity) context).onBackPressed();
         }
 
         //Board
