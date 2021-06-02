@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cuatro En Raya</string>
+    <string name="Language">Idioma</string>
+    <string name="buttonExit">SALIR</string>
+    <string name="buttonOptions">OPCIONES</string>
+    <string name="buttonPlay">JUGAR</string>
+    <string name="game_settings">Opciones del juego</string>
+    <string name="titleDevMode">Activa el modo desarrollador</string>
+</resources>

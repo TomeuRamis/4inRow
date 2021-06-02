@@ -88,7 +88,8 @@ public class Controller {
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
-        boardy1 = screenHeight / 6 * 2;
+        //boardy1 = screenHeight / 6 * 2;
+        boardy1 = toScreenY(686);
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
         topbar = toScreenY(200);
 
@@ -153,8 +154,8 @@ public class Controller {
 
             //Mans
             paint.setColor(Color.argb(255, 135, 206, 230));
-            int columnSpacing = (int) (128 * (double) toScreenX(700) / 700);
-            int rowSpacing = (int) (127 * (double) toScreenY(600) / 600);
+            int columnSpacing = toScreenX((int) 128);
+            int rowSpacing = toScreenY((int) 127);
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);

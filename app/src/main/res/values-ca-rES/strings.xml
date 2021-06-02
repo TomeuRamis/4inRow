@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quatre en Ratlla</string>
+    <string name="buttonPlay">JUGAR</string>
+    <string name="buttonOptions">OPCIONS</string>
+    <string name="buttonExit">SORIT</string>
+    <string name="Language">Idiomes</string>
+    <string name="game_settings">Opcions del joc</string>
+    <string name="titleDevMode">Activa el mode de desenvolupador</string>
+</resources>
