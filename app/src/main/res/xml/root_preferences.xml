@@ -5,7 +5,7 @@
         <ListPreference
             app:defaultValue="English"
             app:entries="@array/languages"
-            app:entryValues="@array/languages"
+            app:entryValues="@array/languagesCode"
             app:key="language"
             app:title="Choose your language"
             app:useSimpleSummaryProvider="true" />

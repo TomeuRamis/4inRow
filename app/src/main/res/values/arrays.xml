@@ -15,6 +15,11 @@
         <item> Spanish </item>
         <item> Catalan </item>
     </string-array>
+    <string-array name="languagesCode">
+        <item> en </item>
+        <item> es </item>
+        <item> ca </item>
+    </string-array>
     <string-array name="difficulties">
         <item> Very easy</item>
         <item> Easy </item>
