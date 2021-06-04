@@ -6,5 +6,4 @@
     <string name="buttonOptions">OPCIONES</string>
     <string name="buttonPlay">JUGAR</string>
     <string name="game_settings">Opciones del juego</string>
-    <string name="titleDevMode">Activa el modo desarrollador</string>
 </resources>

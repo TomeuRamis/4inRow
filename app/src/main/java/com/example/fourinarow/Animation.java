@@ -21,6 +21,7 @@ public class Animation {
         img = m;
         this.col = c;
         this.row = r;
+
     }
 
     public int getRow() {

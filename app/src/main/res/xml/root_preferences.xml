@@ -14,19 +14,45 @@
 
     <PreferenceCategory app:title="@string/game_settings">
 
-        <SwitchPreferenceCompat
-            app:key="DevMode"
-            app:title="@string/titleDevMode" />
+        <ListPreference
+            app:defaultValue="@string/val1_starting"
+            app:entries="@array/starting"
+            app:entryValues="@array/val_starting"
+            app:key="starting"
+            app:summary="@string/summary_starting"
+            app:title="@string/title_starting"
+            app:useSimpleSummaryProvider="false" />
 
         <ListPreference
-            app:key="Difficulty"
-            app:title="@string/titleDifficulty"
-            app:defaultValue="Normal"
+            app:defaultValue="@string/val2_consecutive"
+            app:entries="@array/consecutive"
+            app:entryValues="@array/val_consecutive"
+            app:key="consecutive"
+            app:summary="@string/summary_consecutive"
+            app:title="@string/title_consecutive"
+            app:useSimpleSummaryProvider="false" />
+
+        <ListPreference
+            app:defaultValue="6"
             app:entries="@array/difficulties"
             app:entryValues="@array/difficulties"
-            app:useSimpleSummaryProvider="true"
+            app:key="Difficulty"
+            app:summary="@string/summary_difficulty"
+            app:title="@string/title_difficulty"
+            app:useSimpleSummaryProvider="false" />
+
+        <SwitchPreferenceCompat
+            app:key="experimental"
+            app:title="@string/title_experimental"
+            app:summary="@string/summary_experimental"
+            app:defaultValue="false"
             />
 
+        <SwitchPreferenceCompat
+            app:key="devmode"
+            app:title="@string/title_devmode"
+            app:defaultValue="false"
+            />
 
     </PreferenceCategory>
 

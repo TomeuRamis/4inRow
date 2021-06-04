@@ -6,5 +6,4 @@
     <string name="buttonExit">SORIT</string>
     <string name="Language">Idiomes</string>
     <string name="game_settings">Opcions del joc</string>
-    <string name="titleDevMode">Activa el mode de desenvolupador</string>
 </resources>

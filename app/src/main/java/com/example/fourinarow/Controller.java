@@ -1,6 +1,7 @@
 package com.example.fourinarow;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,6 +12,7 @@ import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,7 +21,7 @@ public class Controller {
 
     Board board;
     Boolean devmode;
-    int turn;
+    int turn, scorePlayer, scoreIA;
     Boolean gameOver;
 
     IA ia;
@@ -35,6 +37,7 @@ public class Controller {
 
     //private Typeface fontJoc;
     private Context context;
+    private SharedPreferences sharedPref;
     private int screenWidth;
     private int screenHeight;
     private Canvas canvas;
@@ -53,20 +56,25 @@ public class Controller {
 
     private Paint paint;
     private Point center;
-    private Image blackMan, whiteMan, blankMan, boardimg, background;
+    private Image blackMan, whiteMan, blankMan, transMan, boardimg, background, score;
     private Typeface fontJoc;
     private Button replay, back;
 
     private boolean playAnimation;
     private ArrayList<Animation> animationQ;
+    private Animation scoreAnim;
+    private int scoreX, scoreY, scoreW, scoreH;
 
     private int boardx1, boardx2, boardy1, boardy2, topbar;
     private int fingerPosX, FingerPosY;
 
     public Controller(Context context, GameView m, int width, int height, int screenWidth, int screenHeight) {
 
-        devmode = false;
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        devmode = sharedPref.getBoolean("devmode", false);
         turn = 0;
+        scorePlayer = 0;
+        scoreIA = 0;
         gameOver = false;
         board = new Board(width, height);
 
@@ -92,6 +100,9 @@ public class Controller {
         boardy1 = toScreenY(686);
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
         topbar = toScreenY(200);
+        scoreX = 165;
+        scoreW = 750;
+        scoreH = 375;
 
         blackMan = new Image(m, R.drawable.red_man);
         whiteMan = new Image(m, R.drawable.yellow_man);
@@ -110,13 +121,26 @@ public class Controller {
 
     public void initGame() {
         // initializations
-        assignTeams();
+
+
+        assignTeams(Integer.parseInt(sharedPref.getString("starting", "0")), Integer.parseInt(sharedPref.getString("consecutive", "1")));
+
         if (ia != null) {
             ia.gameover = true;
         }
-        ia = new IA(this.board, this, this.manIA);
-        ia.start();
-        //main.doneLoad();
+
+        int depth;
+        if (sharedPref.getBoolean("experimental", false)) {
+            depth = 7;
+        } else {
+            depth = Integer.parseInt(sharedPref.getString("difficulty", "6"));
+        }
+        ia = new IA(this.board, this, this.manIA, depth);
+        if (!devmode) {
+            ia.start();
+        } else {
+            doneLoad();
+        }
     }
 
     public void update(long fps) {
@@ -205,7 +229,7 @@ public class Controller {
             }
 
             if (fingerPosX != -1) {
-                blackMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + toScreenX(35), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + toScreenY(35), 100, 100, -10, 99);
+                transMan.filteredDraw(canvas, boardx1 + columnSpacing * fingerPosX + toScreenX(35), boardy1 + rowSpacing * (board.height - board.getTopPos(fingerPosX) - 2) + toScreenY(35), 100, 100, -10, 99);
             }
 
             //Draw board
@@ -218,6 +242,39 @@ public class Controller {
                 replay.draw(canvas);
                 drawCenteredText(canvas, "GAME OVER", 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
                 if (animationQ.isEmpty()) {
+                    //draw the score board
+                    if (scoreAnim != null) {
+                        if (scoreAnim.isDone()) {
+                            scoreY = 275;
+                        } else {
+                            double r;
+                            switch (scoreAnim.getState()) {
+                                case 0:
+                                    //scoreY = -350 + (int) (toScreenY(350) * scoreAnim.getCompletionRatio());
+                                    scoreY = -500;
+                                    break;
+                                case 1:
+                                    scoreY = -400 + (int) (toScreenY(311) * scoreAnim.getCompletionRatio());
+                                    break;
+                                case 2:
+                                    r = scoreAnim.getCompletionRatio() * -toScreenY(75);
+                                    scoreY = toScreenY(311) + (int) r;
+                                    break;
+                                case 3:
+                                    r = (scoreAnim.getCompletionRatio() * toScreenY(39));
+                                    scoreY = toScreenY(236) + (int) r;
+                                    break;
+                            }
+                            scoreAnim.newFrame();
+                        }
+                        scoreAnim.getImage().draw(canvas, toScreenX(scoreX), toScreenY(scoreY), toScreenX(scoreW), toScreenY(scoreH));
+                        drawCenteredText(canvas, "SCORE", 80, Color.rgb(255, 255, 255), toScreenY(scoreY + 125));
+                        drawText(canvas, "player", 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 175), toScreenY(scoreY + 225));
+                        drawText(canvas, "IA", 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 575), toScreenY(scoreY + 225));
+                        drawText(canvas, Integer.toString(scorePlayer), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 175), toScreenY(scoreY + 325));
+                        drawText(canvas, Integer.toString(scoreIA), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 575), toScreenY(scoreY + 325));
+                    }
+                    //mark the 4 in a row
                     paint.setColor(Color.argb(200, 255, 255, 255));
                     for (int i = 0; i < this.inRow.length; i++) {
                         if (winner == Man.BLACK) {
@@ -232,7 +289,7 @@ public class Controller {
             } else {
                 String txt = "";
                 if (turn == 0) {
-                    if (playingMan == this.manIA) {
+                    if (playingMan == this.manIA && !devmode) {
                         txt = "IA opens";
                     } else {
                         txt = "Play!";
@@ -262,7 +319,7 @@ public class Controller {
 
         //Board
         if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2 && !gameOver) {
-            if (this.playingMan == this.manPlayer) {
+            if (this.playingMan == this.manPlayer || devmode) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
                     //playerTryPlayMan((x-boardx1) / columnSpacing);
@@ -289,7 +346,7 @@ public class Controller {
 
         //Board
         if (x > boardx1 && x < boardx2 && y > boardy1 && y < boardy2 && !gameOver) {
-            if (this.playingMan == this.manPlayer) {
+            if (this.playingMan == this.manPlayer || devmode) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
                     playerTryPlayMan((x - boardx1) / columnSpacing);
@@ -305,10 +362,10 @@ public class Controller {
     }
 
     public void replay() {
-        devmode = false;
         turn = 0;
         board = new Board(this.board.width, this.board.height);
         resetAniamtionQ();
+        scoreAnim = null;
         playingMan = Man.BLACK;
         blackPlays = true;
         initGame();
@@ -327,6 +384,22 @@ public class Controller {
 
         int xPos = modelViewX / 2;
         int yPos = (int) (pos + ((paintText.descent() + paintText.ascent())) / 4);
+        //int yPos = pos;
+        canvas.drawText(txt, toScreenX(xPos), toScreenY(yPos), paintText);
+    }
+
+    public void drawText(Canvas canvas, String txt, int size, int color, int x, int y) {
+        Paint paintText = new Paint();
+        paintText.setTypeface(fontJoc);
+        paintText.setTextSize(toScreenX(size));
+
+        // Centrat horitzontal
+        paintText.setTextAlign(Paint.Align.CENTER);
+        paintText.setColor(color);
+        paintText.setAlpha(200);
+
+        int xPos = x;
+        int yPos = (int) (y + ((paintText.descent() + paintText.ascent())) / 4);
         //int yPos = pos;
         canvas.drawText(txt, toScreenX(xPos), toScreenY(yPos), paintText);
     }
@@ -354,38 +427,92 @@ public class Controller {
         }
     }
 
-    public void assignTeams() {
+    public void assignTeams(int starting, int consecutive) {
 
         if (winner != null) {
-            if (winner == Man.BLACK) {
-                if (manPlayer == Man.BLACK) {
-                    manPlayer = Man.WHITE;
-                    manIA = Man.BLACK;
-                } else {
-                    manPlayer = Man.BLACK;
-                    manIA = Man.WHITE;
-                }
-            } else {
-                if (manPlayer == Man.BLACK) {
-                    manPlayer = Man.BLACK;
-                    manIA = Man.WHITE;
-                } else {
-                    manPlayer = Man.WHITE;
-                    manIA = Man.BLACK;
-                }
+            switch (consecutive) {
+                case 0:
+                    if (winner == Man.BLACK) {
+                        if (manPlayer == Man.BLACK) {
+                            manPlayer = Man.BLACK;
+                            manIA = Man.WHITE;
+                        } else {
+                            manPlayer = Man.WHITE;
+                            manIA = Man.BLACK;
+                        }
+                    } else {
+                        if (manPlayer == Man.WHITE) {
+                            manPlayer = Man.BLACK;
+                            manIA = Man.WHITE;
+                        } else {
+                            manPlayer = Man.WHITE;
+                            manIA = Man.BLACK;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (winner == Man.BLACK) {
+                        if (manPlayer == Man.BLACK) {
+                            manPlayer = Man.WHITE;
+                            manIA = Man.BLACK;
+                        } else {
+                            manPlayer = Man.BLACK;
+                            manIA = Man.WHITE;
+                        }
+                    } else {
+                        if (manPlayer == Man.WHITE) {
+                            manPlayer = Man.WHITE;
+                            manIA = Man.BLACK;
+                        } else {
+                            manPlayer = Man.BLACK;
+                            manIA = Man.WHITE;
+                        }
+                    }
+                    break;
+
+                case 2:
+                    Random ran = new Random(10);
+                    if (ran.nextInt(10) % 2 == 0) {
+                        manPlayer = Man.BLACK;
+                        manIA = Man.WHITE;
+                    } else {
+                        manPlayer = Man.WHITE;
+                        manIA = Man.BLACK;
+                    }
+                    break;
+
             }
         } else {
-            /* //Not for now
-            Random ran = new Random(10);
-            if(ran.nextInt(10)%2 == 0){
-            player = Man.BLACK;
-            ia = Man.WHITE;
-            } else{
-            player = Man.WHITE;
-            ia = Man.BLACK;
-            }*/
-            manPlayer = Man.BLACK;
-            manIA = Man.WHITE;
+            switch (starting) {
+                case 0:
+                    manPlayer = Man.BLACK;
+                    manIA = Man.WHITE;
+                    transMan = blackMan;
+                    break;
+                case 1:
+                    manPlayer = Man.WHITE;
+                    manIA = Man.BLACK;
+                    transMan = whiteMan;
+                    break;
+                case 2:
+                    Random ran = new Random(10);
+                    if (ran.nextInt(10) % 2 == 0) {
+                        manPlayer = Man.BLACK;
+                        manIA = Man.WHITE;
+                        transMan = blackMan;
+                    } else {
+                        manPlayer = Man.WHITE;
+                        manIA = Man.BLACK;
+                        transMan = whiteMan;
+                    }
+                    break;
+            }
+
+        }
+        if (manPlayer == Man.BLACK) {
+            transMan = blackMan;
+        } else {
+            transMan = whiteMan;
         }
 
     }
@@ -452,7 +579,13 @@ public class Controller {
             } else {
                 animationQ.add(new Animation(whiteMan, col, board.getTopPos(col)));
             }
-            //newTurn();
+            //Add the score
+            if (playingMan == manPlayer) {
+                scorePlayer += 1;
+            } else {
+                scoreIA += 1;
+            }
+            scoreAnim = new Animation(new Image(myView, R.drawable.score), -1, -1);
         }
 
 

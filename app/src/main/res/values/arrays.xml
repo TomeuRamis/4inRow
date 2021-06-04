@@ -1,14 +1,4 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
-    </string-array>
-
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
-    </string-array>
 
     <string-array name="languages">
         <item> English </item>
@@ -20,9 +10,37 @@
         <item> es </item>
         <item> ca </item>
     </string-array>
-    <string-array name="difficulties">
-        <item> Very easy</item>
-        <item> Easy </item>
-        <item> Normal</item>
+
+    <string-array name="starting">
+        <item> @string/val1_starting </item>
+        <item> @string/val2_starting </item>
+        <item> @string/val3_starting </item>
     </string-array>
+    <string-array name="val_starting">
+        <item> 0 </item>
+        <item> 1 </item>
+        <item> 2 </item>
+    </string-array>
+
+    <string-array name="consecutive">
+        <item> @string/val1_consecutive </item>
+        <item> @string/val2_consecutive </item>
+        <item> @string/val3_consecutive</item>
+    </string-array>
+    <string-array name="val_consecutive">
+        <item> 0 </item>
+        <item> 1 </item>
+        <item> 2</item>
+    </string-array>
+
+    <string-array name="difficulties">
+        <item> 0 </item>
+        <item> 1 </item>
+        <item> 2 </item>
+        <item> 3 </item>
+        <item> 4 </item>
+        <item> 5 </item>
+        <item> 6 </item>
+    </string-array>
+
 </resources>

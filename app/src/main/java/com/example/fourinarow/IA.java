@@ -14,7 +14,8 @@ public class IA extends Thread {
     boolean waiting = true;
     boolean gameover = false;
 
-    final int treeDepth = 6; //Constant depth of the tree
+    //Constant depth of the tree
+    final int treeDepth;
     //Node evaluation scores
     final int WIN = 400;
     final int TIE = 0;
@@ -33,10 +34,11 @@ public class IA extends Thread {
     //Local indicator of the current level (or current depth)
     int depth;
 
-    public IA(Board board, Controller control, Man m) {
+    public IA(Board board, Controller control, Man m, int depth) {
         this.board = board;
         this.control = control;
         this.team = m;
+        this.treeDepth = depth;
         Board b = (Board) board.clone();
         root = new Node(b);
     }
