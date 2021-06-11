@@ -6,4 +6,5 @@
     <string name="buttonOptions">OPCIONES</string>
     <string name="buttonPlay">JUGAR</string>
     <string name="game_settings">Opciones del juego</string>
+    <string name="summary_difficulty">"Cuanto más alto, más difícil "</string>
 </resources>

@@ -6,4 +6,5 @@
     <string name="buttonExit">SORIT</string>
     <string name="Language">Idiomes</string>
     <string name="game_settings">Opcions del joc</string>
+    <string name="summary_difficulty">Quan més, més difícil</string>
 </resources>

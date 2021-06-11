@@ -6,9 +6,9 @@
         <item> Catalan </item>
     </string-array>
     <string-array name="languagesCode">
-        <item> en </item>
-        <item> es </item>
-        <item> ca </item>
+        <item>en</item>
+        <item>es</item>
+        <item>ca</item>
     </string-array>
 
     <string-array name="starting">
@@ -34,7 +34,6 @@
     </string-array>
 
     <string-array name="difficulties">
-        <item> 0 </item>
         <item> 1 </item>
         <item> 2 </item>
         <item> 3 </item>

@@ -17,15 +17,8 @@
     <string name="game_settings">Game settings</string>
 
     <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
 
     <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off" translatable="false">Only download attachments when manually requested</string>
     <string name="app_name">FourInARow</string>
     <string name="summary_difficulty">The higher, the harder</string>
     <string name="summary_starting">Who makes the first move</string>

@@ -179,7 +179,8 @@ public class Controller {
             //Mans
             paint.setColor(Color.argb(255, 135, 206, 230));
             int columnSpacing = toScreenX((int) 128);
-            int rowSpacing = toScreenY((int) 127);
+            //int rowSpacing = toScreenY((int) 133);
+            int rowSpacing = toScreenY((int)((boardy2-boardy1)/board.height))-toScreenY(6);
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);

@@ -3,7 +3,7 @@
     <PreferenceCategory app:title="@string/Language">
 
         <ListPreference
-            app:defaultValue="English"
+            app:defaultValue="en"
             app:entries="@array/languages"
             app:entryValues="@array/languagesCode"
             app:key="language"
@@ -15,7 +15,7 @@
     <PreferenceCategory app:title="@string/game_settings">
 
         <ListPreference
-            app:defaultValue="@string/val1_starting"
+            app:defaultValue="0"
             app:entries="@array/starting"
             app:entryValues="@array/val_starting"
             app:key="starting"
@@ -24,7 +24,7 @@
             app:useSimpleSummaryProvider="false" />
 
         <ListPreference
-            app:defaultValue="@string/val2_consecutive"
+            app:defaultValue="1"
             app:entries="@array/consecutive"
             app:entryValues="@array/val_consecutive"
             app:key="consecutive"
