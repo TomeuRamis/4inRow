@@ -180,7 +180,7 @@ public class Controller {
             paint.setColor(Color.argb(255, 135, 206, 230));
             int columnSpacing = toScreenX((int) 128);
             //int rowSpacing = toScreenY((int) 133);
-            int rowSpacing = toScreenY((int)((boardy2-boardy1)/board.height))-toScreenY(6);
+            int rowSpacing = toScreenY((int) ((boardy2 - boardy1) / board.height)) - toScreenY(6);
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
@@ -277,13 +277,15 @@ public class Controller {
                     }
                     //mark the 4 in a row
                     paint.setColor(Color.argb(200, 255, 255, 255));
-                    for (int i = 0; i < this.inRow.length; i++) {
-                        if (winner == Man.BLACK) {
-                            canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
-                            blackMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
-                        } else {
-                            canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
-                            whiteMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
+                    if (inRow != null) {
+                        for (int i = 0; i < this.inRow.length; i++) {
+                            if (winner == Man.BLACK) {
+                                canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
+                                blackMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
+                            } else {
+                                canvas.drawCircle(boardx1 + columnSpacing * inRow[i][1] + (int) (columnSpacing * 0.5) + toScreenX(22), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + (int) (rowSpacing * 0.5) + toScreenY(22), 58, paint);
+                                whiteMan.draw(canvas, boardx1 + columnSpacing * inRow[i][1] + toScreenX(33), boardy1 + rowSpacing * (board.height - inRow[i][0] - 1) + toScreenY(33), 104, 104);
+                            }
                         }
                     }
                 }
@@ -581,11 +583,11 @@ public class Controller {
                 animationQ.add(new Animation(whiteMan, col, board.getTopPos(col)));
             }
             //Add the score
-            if (playingMan == manPlayer) {
+            if (winner == manPlayer) {
                 scorePlayer += 1;
-            } else {
+            } else if (winner == manIA) {
                 scoreIA += 1;
-            }
+            } //If the winner is EMPTY it means it's a tie
             scoreAnim = new Animation(new Image(myView, R.drawable.score), -1, -1);
         }
 

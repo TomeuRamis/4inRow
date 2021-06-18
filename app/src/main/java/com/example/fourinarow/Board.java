@@ -100,6 +100,9 @@ public class Board {
                 throw new GameOverException("GAME_OVER", "A 4 in a row has been made. Game stopped.", m, inrow);
             }
         }
+        if(mans == height*width){
+            throw new GameOverException("GAME_OVER", "A tie has been reached. Game stopped.", Man.EMPTY, null);
+        }
     }
 
     public Man getSquare(int row, int col) {
