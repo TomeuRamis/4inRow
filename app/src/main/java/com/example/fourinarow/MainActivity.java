@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Controller control;
 
-   // private ImageView backgroundLoading;
+    // private ImageView backgroundLoading;
     // private ProgressBar spinner;
 //    private TextView tv;
 //    private TextView tvcol;
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
 
         view.run();
+
 //        tv = (TextView) findViewById(R.id.textView);
 //        tv.setText("hola");
 //        tvcol = (TextView) findViewById(R.id.textViewColumnIndicator);
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         view.resume();
     }
 
-    public void onBackPressed(){
+    public void onBackPressed() {
         // do something here and don't write super.onBackPressed()
         System.out.println("BACK BUTTON");
         view.stop();
@@ -194,20 +195,21 @@ public class MainActivity extends AppCompatActivity {
 //        spinner.setVisibility(View.GONE);
 //    }
 
-    private void fadeOutAndHideImage(final ImageView img)
-    {
+    private void fadeOutAndHideImage(final ImageView img) {
         Animation fadeOut = new AlphaAnimation(1, 0);
         fadeOut.setInterpolator(new AccelerateInterpolator());
         fadeOut.setDuration(1000);
 
-        fadeOut.setAnimationListener(new Animation.AnimationListener()
-        {
-            public void onAnimationEnd(Animation animation)
-            {
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationEnd(Animation animation) {
                 img.setVisibility(View.GONE);
             }
-            public void onAnimationRepeat(Animation animation) {}
-            public void onAnimationStart(Animation animation) {}
+
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            public void onAnimationStart(Animation animation) {
+            }
         });
 
         img.startAnimation(fadeOut);

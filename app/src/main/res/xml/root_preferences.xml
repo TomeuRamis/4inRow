@@ -36,7 +36,7 @@
             app:defaultValue="6"
             app:entries="@array/difficulties"
             app:entryValues="@array/difficulties"
-            app:key="Difficulty"
+            app:key="difficulty"
             app:summary="@string/summary_difficulty"
             app:title="@string/title_difficulty"
             app:useSimpleSummaryProvider="false" />
