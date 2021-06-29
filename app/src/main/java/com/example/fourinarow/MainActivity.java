@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBackPressed() {
         // do something here and don't write super.onBackPressed()
-        System.out.println("BACK BUTTON");
+        //System.out.println("BACK BUTTON");
         view.stop();
         super.onBackPressed();
     }
@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
     public void restart(View view) {
 
         this.column = 0;
-        setDevMode(false);
 
         // Get a Display object to access screen details
         Display display = getWindowManager().getDefaultDisplay();
@@ -124,10 +123,6 @@ public class MainActivity extends AppCompatActivity {
         this.control.toggleDevMode();
     }
 
-    public void setDevMode(Boolean devmode) {
-        Switch swt = this.findViewById(R.id.switch1);
-        swt.setChecked(devmode);
-    }
 
 //    public void startController(){
 //        control = new Controller(this, 7, 6);

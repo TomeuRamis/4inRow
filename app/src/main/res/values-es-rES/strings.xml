@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cuatro En Raya</string>
-    <string name="Language">Idioma</string>
+    <string name="Language">Idiomas</string>
     <string name="buttonExit">SALIR</string>
     <string name="buttonOptions">OPCIONES</string>
     <string name="buttonPlay">JUGAR</string>
     <string name="game_settings">Opciones del juego</string>
     <string name="summary_difficulty">"Cuanto más alto, más difícil "</string>
+    <string name="title_activity_settings">Configuración</string>
+    <string name="summary_starting">Quien hace el primer movimiento</string>
+    <string name="title_starting">Primer turno</string>
+    <string name="val1_starting">Yo siempre empiezo</string>
+    <string name="val2_starting">La IA empieza</string>
+    <string name="val3_starting">Se decide aleatoriamente</string>
+    <string name="val1_consecutive">El ganador empieza</string>
+    <string name="val2_consecutive">El perdedor empieza</string>
+    <string name="val3_consecutive">Se decide aleatoriament</string>
+    <string name="summary_consecutive">Quien empieza en partidas consecutivas</string>
+    <string name="title_consecutive">Partidas consecutivas</string>
+    <string name="title_difficulty">Cambia la dificultad</string>
+    <string name="title_devmode">Activa o desactiva la IA</string>
+    <string name="title_experimental">Activa el modo Consumo alto de energia</string>
+    <string name="summary_experimental">Mejora la inteligencia de la IA (solo para maquinas muy potentes)</string>
+    <string name="score">PUNTUACIÓN</string>
+    <string name="player">Jugador</string>
+    <string name="IA">IA</string>
+    <string name="ia_starts">abre la IA</string>
+    <string name="play">¡JUEGA!</string>
+    <string name="turn">turno</string>
+    <string name="title_language">Elige tu idioma</string>
+    <string name="val_english">Inglés</string>
+    <string name="val_catalan">Catalan</string>
+    <string name="val_spanish">Castellano</string>
+    <string name="summary_devmode">Evita que la IA juegue (permite que dos personas jueguen)</string>
+    <string name="GameOver">GAME OVER</string>
 </resources>

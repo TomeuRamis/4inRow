@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.icu.text.StringSearch;
 import android.os.Build;
 import android.view.SurfaceHolder;
 
@@ -186,7 +187,7 @@ public class Controller {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
                     if (board.getSquare(j, i) != Man.EMPTY && !inAnimationQ(j, i)) {
                         if (board.getSquare(j, i) == Man.BLACK) {
-                            blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), 104, 104);
+                            blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), (int)ratioH*104, (int)ratioH*104);
                         } else {
                             whiteMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), 104, 104);
                         }
@@ -201,7 +202,7 @@ public class Controller {
                     a = animationQ.get(i);
                     if (a.isDone()) {
                         animationQ.remove(0);
-                        a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + toScreenY(35) + rowSpacing * (board.height - 1 - a.getRow()), 100, 100);
+                        a.getImage().draw(canvas, boardx1 + a.getCol() * columnSpacing + toScreenX(35), boardy1 + toScreenY(35) + rowSpacing * (board.height - 1 - a.getRow()), 104, 104);
                         i--;
                     } else {
                         double r;
@@ -241,7 +242,7 @@ public class Controller {
 
             if (gameOver) {
                 replay.draw(canvas);
-                drawCenteredText(canvas, "GAME OVER", 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
+                drawCenteredText(canvas, context.getString(R.string.GameOver), 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
                 if (animationQ.isEmpty()) {
                     //draw the score board
                     if (scoreAnim != null) {
@@ -269,9 +270,9 @@ public class Controller {
                             scoreAnim.newFrame();
                         }
                         scoreAnim.getImage().draw(canvas, toScreenX(scoreX), toScreenY(scoreY), toScreenX(scoreW), toScreenY(scoreH));
-                        drawCenteredText(canvas, "SCORE", 80, Color.rgb(255, 255, 255), toScreenY(scoreY + 125));
-                        drawText(canvas, "player", 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 175), toScreenY(scoreY + 225));
-                        drawText(canvas, "IA", 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 575), toScreenY(scoreY + 225));
+                        drawCenteredText(canvas, context.getString(R.string.score), 80, Color.rgb(255, 255, 255), toScreenY(scoreY + 125));
+                        drawText(canvas, context.getString(R.string.player), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 175), toScreenY(scoreY + 225));
+                        drawText(canvas, context.getString(R.string.IA), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 575), toScreenY(scoreY + 225));
                         drawText(canvas, Integer.toString(scorePlayer), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 175), toScreenY(scoreY + 325));
                         drawText(canvas, Integer.toString(scoreIA), 80, Color.rgb(255, 255, 255), toScreenX(scoreX + 575), toScreenY(scoreY + 325));
                     }
@@ -293,12 +294,12 @@ public class Controller {
                 String txt = "";
                 if (turn == 0) {
                     if (playingMan == this.manIA && !devmode) {
-                        txt = "IA opens";
+                        txt = context.getString(R.string.ia_starts);
                     } else {
-                        txt = "Play!";
+                        txt = context.getString(R.string.play);
                     }
                 } else {
-                    txt = "turn " + this.turn;
+                    txt = context.getString(R.string.turn) + this.turn;
                 }
                 drawCenteredText(canvas, txt, 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
             }
@@ -328,7 +329,8 @@ public class Controller {
                     //playerTryPlayMan((x-boardx1) / columnSpacing);
                     fingerPosX = (x - boardx1) / columnSpacing;
                 } catch (Exception e) {
-                    System.err.println("x: " + x + ", y: " + y);
+                    System.err.println(e.getMessage());
+                   //System.err.println("x: " + x + ", y: " + y);
                 }
             }
         }
@@ -356,7 +358,7 @@ public class Controller {
                     fingerPosX = -1;
                     //fingerPosX = (x-boardx1) / columnSpacing;
                 } catch (ColumnFullException e) {
-                    System.err.println("x: " + x + ", y: " + y);
+                    System.err.println(e.getMessage());
                 }
             }
         } else {

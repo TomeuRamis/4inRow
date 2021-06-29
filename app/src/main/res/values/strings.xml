@@ -1,16 +1,8 @@
 <resources>
-    <string name="text_view">Nothing</string>
-    <string name="ButtonLeft">←</string>
-    <string name="ButtonRight">→</string>
-    <string name="ButtonPlaceMan">Place</string>
-    <string name="TextViewState">NULL</string>
-    <string name="ButtonRestart">RESTART</string>
-    <string name="ButtonDevMode">Toggle Dev Mode</string>
-    <string name="TextViewColumnIndicator">"       ^"</string>
     <string name="buttonPlay">PLAY</string>
     <string name="buttonOptions">OPTIONS</string>
     <string name="buttonExit">EXIT</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
 
     <!-- Preference Titles -->
     <string name="Language">Language</string>
@@ -24,7 +16,7 @@
     <string name="summary_starting">Who makes the first move</string>
     <string name="title_starting">Starting turns</string>
     <string name="val1_starting">I always go first</string>
-    <string name="val2_starting">The IA always goes first</string>
+    <string name="val2_starting">The AI always goes first</string>
     <string name="val3_starting">It\'s decided at random</string>
     <string name="val1_consecutive">The winner goes first</string>
     <string name="val2_consecutive">The looser goes first</string>
@@ -32,7 +24,19 @@
     <string name="summary_consecutive">Who starts when playing consecutive games</string>
     <string name="title_consecutive">Starting consecutive games</string>
     <string name="title_difficulty">Change the difficulty</string>
-    <string name="title_devmode">Toggle Developer Mode</string>
-    <string name="title_experimental">Toggle experimental mode</string>
-    <string name="summary_experimental">Makes the IA smarter (only for high-end machines)</string>
+    <string name="title_devmode">Toggle the AI</string>
+    <string name="title_experimental">Toggle high memory usage mode</string>
+    <string name="summary_experimental">Makes the AI smarter (only for high-end machines)</string>
+    <string name="GameOver" translatable="false">GAME OVER</string>
+    <string name="score">SCORE</string>
+    <string name="player">player</string>
+    <string name="IA">AI</string>
+    <string name="ia_starts">AI opens</string>
+    <string name="play">PLAY!</string>
+    <string name="turn">turn</string>
+    <string name="title_language">Choose your language</string>
+    <string name="val_english">English</string>
+    <string name="val_catalan">Catalan</string>
+    <string name="val_spanish">Spanish</string>
+    <string name="summary_devmode">Stops the AI from playing (allows play with another person)</string>
 </resources>

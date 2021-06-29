@@ -1,9 +1,9 @@
 <resources>
 
     <string-array name="languages">
-        <item> English </item>
-        <item> Spanish </item>
-        <item> Catalan </item>
+        <item> @string/val_english </item>
+        <item> @string/val_spanish </item>
+        <item> @string/val_catalan </item>
     </string-array>
     <string-array name="languagesCode">
         <item>en</item>
