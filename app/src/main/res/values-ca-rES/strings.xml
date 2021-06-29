@@ -6,7 +6,7 @@
     <string name="buttonExit">SORTIR</string>
     <string name="Language">Idiomes</string>
     <string name="game_settings">Opcions del joc</string>
-    <string name="summary_difficulty">Quan més alt, més difícil</string>
+    <string name="summary_difficulty">Quant més alt, més difícil</string>
     <string name="title_activity_settings">Configuració</string>
     <string name="summary_starting">Qui fa el primer moviment</string>
     <string name="title_starting">Primer torn</string>
@@ -19,18 +19,18 @@
     <string name="summary_consecutive">Qui comença en partides consecutives</string>
     <string name="title_consecutive">Partides consecutives</string>
     <string name="title_difficulty">Canvia la dificultat</string>
-    <string name="title_devmode">Activa o desactiva la IA</string>
+    <string name="title_devmode">Ddesactiva la IA</string>
     <string name="title_experimental">Activa el mode alt consum d\'energia</string>
-    <string name="summary_experimental">Millora la intel·ligència de la IA (només per màquines molt potents)</string>
+    <string name="summary_experimental">Millora la intel·ligència de la IA (només per a màquines molt potents)</string>
     <string name="score">PUNTUACIÓ</string>
     <string name="player">Jugador</string>
     <string name="IA">IA</string>
-    <string name="ia_starts">obre la IA</string>
+    <string name="ia_starts">Obre la IA</string>
     <string name="play">JUGA!</string>
-    <string name="turn">torn</string>
-    <string name="title_language">Elegeix el teu idioma</string>
-    <string name="val_english">Anglés</string>
+    <string name="turn">"Torn "</string>
+    <string name="title_language">Tria el teu idioma</string>
+    <string name="val_english">Anglès</string>
     <string name="val_catalan">Català</string>
     <string name="val_spanish">Castellà</string>
-    <string name="summary_devmode">Evita que la IA jugui (permet enfrontar a dues persones)</string>
+    <string name="summary_devmode">Evita que la IA jugui</string>
 </resources>

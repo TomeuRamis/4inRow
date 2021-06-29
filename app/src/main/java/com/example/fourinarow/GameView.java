@@ -19,6 +19,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     // For drawing
     private SurfaceHolder ourHolder;
+    private Graphics graphics;
 
     // Control the fps
     long fps = 30;
@@ -32,6 +33,8 @@ public class GameView extends SurfaceView implements Runnable {
         // Initialize our drawing objects
         ourHolder = getHolder();
         control = new Controller(context, this, 7, 6, screenWidth, screenHeight);
+        graphics = new Graphics(context, this, control, control.getBoard(), screenWidth, screenHeight);
+        control.setGraphics(graphics);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -43,20 +46,20 @@ public class GameView extends SurfaceView implements Runnable {
         while (running) {
             long startFrameTime = System.currentTimeMillis();
 
-            if (!control.gameOver) {
+            if (!control.getGameOver()) {
                 control.update(fps);
             }
-            if (!control.loading && fade < 255) {
+            if (!control.getLoading() && fade < 255) {
                 fade += 5;
             }
             if(fade < 255){
-                control.loadinganim(ourHolder, 255-fade);
+                graphics.loadinganim(ourHolder, 255-fade);
             }else if(fade == 255){
-                control.resetAniamtionQ();
-                control.draw(ourHolder);
+                graphics.resetAniamtionQ();
+                graphics.draw(ourHolder);
                 fade += 5;
             }else{
-                control.draw(ourHolder);
+                graphics.draw(ourHolder);
             }
 
 
@@ -123,19 +126,19 @@ public class GameView extends SurfaceView implements Runnable {
 
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
-                    control.handleInput(x, y);
+                    graphics.handleInput(x, y);
                     break;
                 case MotionEvent.ACTION_UP:
-                    control.handleStopInput(x, y);
+                    graphics.handleStopInput(x, y);
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
-                    control.handleInput(x, y);
+                    graphics.handleInput(x, y);
                     break;
                 case MotionEvent.ACTION_POINTER_UP:
-                    control.handleStopInput(x, y);
+                    graphics.handleStopInput(x, y);
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    control.handleInput(x, y);
+                    graphics.handleInput(x, y);
                     break;
             }
         }
@@ -143,8 +146,7 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void stop(){
-        control.ia.gameover = true;
-        //control = null;
+        control.stopPlay();
         running = false;
     }
 }

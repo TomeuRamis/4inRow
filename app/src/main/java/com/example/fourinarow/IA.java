@@ -6,33 +6,33 @@ import java.util.Stack;
 
 public class IA extends Thread {
 
-    Board board;
-    Controller control;
-    Man team;
-    Node root;
+    private Board board;
+    private Controller control;
+    private Man team;
+    private Node root;
 
-    boolean waiting = true;
-    boolean gameover = false;
+    private boolean waiting = true;
+    private boolean gameover = false;
 
     //Constant depth of the tree
-    final int treeDepth;
+    private final int treeDepth;
     //Node evaluation scores
-    final int WIN = 400;
-    final int TIE = 0;
-    final int UNFINISHED = -1;
+    private final int WIN = 400;
+    private final int TIE = 0;
+    private final int UNFINISHED = -1;
     //BLOCK(n) = BLOCK(n-1)*7 + 1
     //EG: if we have 1 3-in-a-row, and 7 2-in-a-row, we always want to stop the 3 over the 2s.
-    final int BLOCK3 = 57;
-    final int BLOCK2 = 8;
-    final int BLOCK1 = 1;
-    final int BLOCK0 = 0;
+    private final int BLOCK3 = 57;
+    private final int BLOCK2 = 8;
+    private final int BLOCK1 = 1;
+    private final int BLOCK0 = 0;
     //Variables for iterative minmax
     //Array of current father on each level
-    Node[] father;
+    private Node[] father;
     //Array of lists of values for each level
-    ArrayList<Integer>[] values;
+    private ArrayList<Integer>[] values;
     //Local indicator of the current level (or current depth)
-    int depth;
+    private int depth;
 
     public IA(Board board, Controller control, Man m, int depth) {
         this.board = board;
