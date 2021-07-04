@@ -21,7 +21,6 @@ public class Animation {
         img = m;
         this.col = c;
         this.row = r;
-
     }
 
     public int getRow() {
@@ -36,6 +35,7 @@ public class Animation {
         return img;
     }
 
+    //Adds 1 to the frame counter, and advances the animation state if necessary
     public void newFrame() {
         if (!done) {
             currentFrame++;
@@ -58,6 +58,7 @@ public class Animation {
         return done;
     }
 
+    //returns the ratio of completition of the animation
     public double getCompletionRatio() {
         switch (state) {
             case 0:

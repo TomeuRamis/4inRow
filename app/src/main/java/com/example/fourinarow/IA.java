@@ -16,6 +16,7 @@ public class IA extends Thread {
 
     //Constant depth of the tree
     private final int treeDepth;
+
     //Node evaluation scores
     private final int WIN = 400;
     private final int TIE = 0;
@@ -26,7 +27,8 @@ public class IA extends Thread {
     private final int BLOCK2 = 8;
     private final int BLOCK1 = 1;
     private final int BLOCK0 = 0;
-    //Variables for iterative minmax
+
+    //Variables for iterative minmax (deprecated)
     //Array of current father on each level
     private Node[] father;
     //Array of lists of values for each level
@@ -121,13 +123,10 @@ public class IA extends Thread {
      */
     public void play() {
 
-        //double time = System.nanoTime();
         root = updateRootBoard(root, board);
         root.father = null;
-        //time = System.nanoTime();
 
         updateDecisionTree(root, depth);
-        //time = System.nanoTime();
         minmax(root, treeDepth, true, -10000, 10000);
 
         boolean equal = true;
@@ -151,7 +150,7 @@ public class IA extends Thread {
          */
         if (equal) {
             if (best.score == -100) {
-                System.err.println("I lost :(");
+                //The IA has already lost if
             }
             boolean found = false;
             int index = (int) Math.ceil(root.child.size() / 2); //Get the middle index
@@ -165,7 +164,7 @@ public class IA extends Thread {
                 }
             }
             if (index < 0) {
-                System.err.println("What. Error at play algorithm. Why has this happened");
+                System.err.println("Error when choosing what move to play.");
             }
         }
         this.root = best;
@@ -204,7 +203,7 @@ public class IA extends Thread {
     }
 
     public int minmax(Node node, int depth, boolean max, int alpha, int beta) {
-        //If the three has not generated completly
+        //If the three has not generated completely
         if (node.child.isEmpty() && depth > 0 && !node.terminal) {
             updateDecisionTree(node, depth);
         }
@@ -487,6 +486,7 @@ public class IA extends Thread {
         return stack;
     }
 
+    //We study the state of the game on a node, and give it a score
     public int evaluateNode(Node node) {
         int value = 0;
 

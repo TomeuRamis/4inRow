@@ -18,8 +18,6 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_menu);
-
-        //Image blackMan = new Image(m, R.drawable.red_man);
     }
 
     public void buttonStartPress(View view) {
@@ -37,15 +35,4 @@ public class MenuActivity extends AppCompatActivity {
         System.exit(0);
     }
 
-    public void languageUpdate(String lang) {
-        Locale myLocale = new Locale(lang);
-        Resources res = getResources();
-        DisplayMetrics dm = res.getDisplayMetrics();
-        Configuration conf = res.getConfiguration();
-        conf.locale = myLocale;
-        res.updateConfiguration(conf, dm);
-        Intent refresh = new Intent(this, this.getClass());
-        finish();
-        startActivity(refresh);
-    }
 }

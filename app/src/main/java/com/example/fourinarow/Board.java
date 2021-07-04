@@ -109,6 +109,7 @@ public class Board {
         return grid[row][col].getMan();
     }
 
+    //Get the man which is at the top of the y column
     public Man getTopMan(int y) {
         for (int i = height - 1; i >= 0; i--) {
             Man m = getSquare(i, y);
@@ -119,6 +120,7 @@ public class Board {
         return Man.EMPTY;
     }
 
+    //Get the position of the man which is at the top of the y column
     public int getTopPos(int y) {
         for (int i = height - 1; i >= 0; i--) {
             Man m = getSquare(i, y);

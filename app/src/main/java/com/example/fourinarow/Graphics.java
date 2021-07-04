@@ -77,7 +77,6 @@ public class Graphics {
 
         boardx1 = screenWidth / 15;
         boardx2 = boardx1 * 14;
-        //boardy1 = screenHeight / 6 * 2;
         boardy1 = toScreenY(686);
         boardy2 = boardy1 + (int) Math.floor((boardx2 - boardx1) * (double) 600 / 700);
         topbar = toScreenY(200);
@@ -110,7 +109,6 @@ public class Graphics {
             canvas = holder.lockCanvas();
 
             //draw a background
-            //canvas.drawColor(Color.argb(255, 135, 206, 230));
             background.draw(canvas, 0, 0, screenWidth, screenHeight);
 
             // Unlock and draw the scene
@@ -124,11 +122,9 @@ public class Graphics {
             //Mans
             paint.setColor(Color.argb(255, 135, 206, 230));
             int columnSpacing = toScreenX((int) 128);
-            //int rowSpacing = toScreenY((int) 133);
             int rowSpacing = (int) ((boardy2 - boardy1) / board.height) - 6;
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
-                    //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
                     if (board.getSquare(j, i) != Man.EMPTY && !inAnimationQ(j, i)) {
                         if (board.getSquare(j, i) == Man.BLACK) {
                             blackMan.draw(canvas, boardx1 + columnSpacing * i + toScreenX(33), boardy1 + rowSpacing * (board.height - j - 1) + toScreenY(33), (int) ratioH * 104, (int) ratioH * 104);
@@ -181,9 +177,7 @@ public class Graphics {
             //Draw board
             boardimg.draw(canvas, boardx1, boardy1, boardx2 - boardx1, boardy2 - boardy1);
 
-            //long fps = myView.getFPS();
-            //drawCenteredText(canvas, "FPS: " + fps, 80, Color.RED, 500);
-
+            //Game over board with score
             if (controller.getGameOver()) {
                 replay.draw(canvas);
                 drawCenteredText(canvas, context.getString(R.string.GameOver), 80, Color.rgb(255, 255, 255), topbar - toScreenY(50));
@@ -196,7 +190,6 @@ public class Graphics {
                             double r;
                             switch (scoreAnim.getState()) {
                                 case 0:
-                                    //scoreY = -350 + (int) (toScreenY(350) * scoreAnim.getCompletionRatio());
                                     scoreY = -500;
                                     break;
                                 case 1:
@@ -271,11 +264,9 @@ public class Graphics {
             if (controller.getPlayingMan() == controller.getManPlayer() || controller.getDevMode()) {
                 try {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
-                    //playerTryPlayMan((x-boardx1) / columnSpacing);
                     fingerPosX = (x - boardx1) / columnSpacing;
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
-                    //System.err.println("x: " + x + ", y: " + y);
                 }
             }
         }
@@ -284,6 +275,7 @@ public class Graphics {
 
     public void handleStopInput(int x, int y) {
 
+        //Buttons
         if (controller.getGameOver() && replay.contains(x, y) && replay.isSelected()) {
             resetAniamtionQ();
             scoreAnim = null;
@@ -300,7 +292,6 @@ public class Graphics {
                     int columnSpacing = (boardx2 - boardx1) / board.width;
                     controller.playerTryPlayMan((x - boardx1) / columnSpacing);
                     fingerPosX = -1;
-                    //fingerPosX = (x-boardx1) / columnSpacing;
                 } catch (ColumnFullException e) {
                     System.err.println(e.getMessage());
                 }
@@ -339,7 +330,6 @@ public class Graphics {
 
         int xPos = x;
         int yPos = (int) (y + ((paintText.descent() + paintText.ascent())) / 4);
-        //int yPos = pos;
         canvas.drawText(txt, toScreenX(xPos), toScreenY(yPos), paintText);
     }
 
@@ -356,6 +346,7 @@ public class Graphics {
     }
 
 
+    //Draws the loading animation
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void loadinganim(SurfaceHolder holder, int alpha) {
         if (holder.getSurface().isValid()) {
