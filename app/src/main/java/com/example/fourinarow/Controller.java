@@ -54,15 +54,15 @@ public class Controller {
         initGame();
     }
 
+    // initializations
     public void initGame() {
-        // initializations
 
         assignTeams(Integer.parseInt(sharedPref.getString("starting", "0")), Integer.parseInt(sharedPref.getString("consecutive", "1")));
-
         if (ia != null) {
             ia.gameover();
         }
 
+        //Get the IA's tree depth
         int depth;
         if (sharedPref.getBoolean("experimental", false)) {
             depth = 7;
@@ -77,20 +77,29 @@ public class Controller {
         }
     }
 
+    /*
+    Check who has to play.
+    Ad update the game accordingly.
+    */
     public void update(long fps) {
-        if (devmode) {
-            turnPlayer();
-        } else {
-            if (playingMan == manPlayer) {
-                //main.updateTextViewState("Make a move!");
+        if (graphics.isLoaded()) {
+            if (devmode) {
                 turnPlayer();
-            } else if (ia.getWaiting()) {
-                //main.updateTextViewState("IA's turn. Wait.");
-                turnIA();
+            } else {
+                if (playingMan == manPlayer) {
+                    //main.updateTextViewState("Make a move!");
+                    turnPlayer();
+                } else if (ia.getWaiting()) {
+                    //main.updateTextViewState("IA's turn. Wait.");
+                    turnIA();
+                }
             }
         }
     }
 
+    /*
+    Reset all needed variables to start the game anew.
+     */
     public void replay() {
         turn = 0;
         board = new Board(this.board.width, this.board.height);
@@ -101,15 +110,8 @@ public class Controller {
         gameOver = false;
     }
 
-
-
-
-    public void toggleDevMode() {
-        if (!gameOver) {
-            devmode = !devmode;
-        }
-    }
-
+    /*Assigns each player a colored Man according to the game settings
+     */
     public void assignTeams(int starting, int consecutive) {
 
         if (winner != null) {
@@ -192,43 +194,35 @@ public class Controller {
     }
 
     public void turnPlayer() {
-        //while (devmode || playingMan == manPlayer) {
         try {
             Thread.sleep(5);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //}
     }
 
     public void turnIA() {
-        //while (playingMan == manIA) {
         try {
             ia.setWaiting(false);
         } catch (IllegalThreadStateException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-            ;
         }
-        //}
     }
 
     /* Increase counter of turns.
-    Invert blackplays, indicating that its the other player's turn.
-    And set the values of PlayingMan accordingly.
-    Update text view */
+    Invert blackplays, indicating that it's the other player's turn.
+    And set the values of PlayingMan accordingly. */
     private void newTurn() {
         turn += 1;
         blackPlays = !blackPlays;
 
-        Man aux;
         if (blackPlays) {
             playingMan = Man.BLACK;
         } else {
             playingMan = Man.WHITE;
         }
-        //main.updateTextViewBoard(board.toString());
     }
 
     /* Plays a man on a column.
@@ -250,7 +244,8 @@ public class Controller {
                 scorePlayer += 1;
             } else if (winner == manIA) {
                 scoreIA += 1;
-            } //If the winner is EMPTY it means it's a tie
+            }
+            //If the winner is EMPTY it means it's a tie
             graphics.setScoreAnimation();
         }
 
@@ -269,6 +264,8 @@ public class Controller {
             ia.setWaiting(true);
         }
     }
+
+    //SETERS AND GETTERS
 
     public void setResume() {
     }
@@ -335,16 +332,28 @@ public class Controller {
         return winner;
     }
 
-    public Board getBoard(){ return this.board;}
+    public Board getBoard() {
+        return this.board;
+    }
 
-    public Boolean getDevMode(){ return devmode;}
+    public Boolean getDevMode() {
+        return devmode;
+    }
 
-    public Boolean getLoading(){ return loading;}
+    public Boolean getLoading() {
+        return loading;
+    }
 
-    public void setGraphics(Graphics graph){this.graphics = graph;}
+    public void setGraphics(Graphics graph) {
+        this.graphics = graph;
+    }
 
-    public void stopPlay(){
+    /*Stops the IA and resets it*/
+    public void stopPlay() {
         this.gameOver = true;
-        ia.gameover();
+        if (ia != null) {
+            ia.gameover();
+            ia = null;
+        }
     }
 }

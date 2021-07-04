@@ -56,6 +56,7 @@ public class GameView extends SurfaceView implements Runnable {
                 graphics.loadinganim(ourHolder, 255-fade);
             }else if(fade == 255){
                 graphics.resetAniamtionQ();
+                graphics.setLoaded(true);
                 graphics.draw(ourHolder);
                 fade += 5;
             }else{

@@ -118,11 +118,7 @@ public class MainActivity extends AppCompatActivity {
 //        tvcol.setText("       ^ ");
 //        tvstate.setText("Game restarted.");
     }
-
-    public void toggleDevMode(View view) {
-        this.control.toggleDevMode();
-    }
-
+    
 
 //    public void startController(){
 //        control = new Controller(this, 7, 6);

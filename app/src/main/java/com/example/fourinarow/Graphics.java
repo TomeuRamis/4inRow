@@ -45,7 +45,7 @@ public class Graphics {
     private Typeface fontJoc;
     private Button replay, back;
 
-    private boolean playAnimation;
+    private boolean playAnimation, loaded = false;
     private ArrayList<Animation> animationQ;
     private Animation scoreAnim;
     private int scoreX, scoreY, scoreW, scoreH;
@@ -98,6 +98,7 @@ public class Graphics {
         fingerPosX = -1;
         animationQ = new ArrayList<>();
         playAnimation = true;
+        loaded = false;
     }
 
 
@@ -124,7 +125,7 @@ public class Graphics {
             paint.setColor(Color.argb(255, 135, 206, 230));
             int columnSpacing = toScreenX((int) 128);
             //int rowSpacing = toScreenY((int) 133);
-            int rowSpacing = toScreenY((int) ((boardy2 - boardy1) / board.height)) - toScreenY(6);
+            int rowSpacing = (int) ((boardy2 - boardy1) / board.height) - 6;
             for (int i = 0; i < board.width; i++) {
                 for (int j = board.height - 1; j >= 0; j--) {
                     //canvas.drawCircle(boardx1 + columnSpacing * i + columnSpacing / 2, boardy1 + rowSpacing * (board.height - j - 1) + rowSpacing / 2, 50, paint);
@@ -456,5 +457,13 @@ public class Graphics {
 
     public void setBoard(Board b){
         this.board = b;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean b) {
+        this.loaded = b;
     }
 }
